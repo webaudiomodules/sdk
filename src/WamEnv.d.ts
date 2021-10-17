@@ -1,4 +1,4 @@
-import { WamEnv } from '@webaudiomodules/api/types';
+import { WamEnv } from '@webaudiomodules/api';
 
 declare const executable: () => WamEnv;
 

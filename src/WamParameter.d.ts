@@ -1,3 +1,3 @@
-import { WamParameter } from '@webaudiomodules/api/types';
+import { WamParameter } from '@webaudiomodules/api';
 
 export default WamParameter;

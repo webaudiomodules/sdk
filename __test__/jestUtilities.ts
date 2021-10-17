@@ -1,4 +1,5 @@
 /* eslint-disable no-plusplus */
+/// <reference path="jest.d.ts" />
 
 type Expectation = 'toAllEqual'
 | 'toAllBeGreaterThan' | 'toAllBeGreaterThanOrEqual'

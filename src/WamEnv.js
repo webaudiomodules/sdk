@@ -1,9 +1,6 @@
-/** @typedef {import('./api/types').WamProcessor} IWamProcessor */
-/** @typedef {import('./api/types').WamEnv} IWamEnv */
-/** @typedef {import('./api/types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-undef */
-/* eslint-disable max-len */
+/** @typedef {import('@webaudiomodules/api').WamProcessor} IWamProcessor */
+/** @typedef {import('@webaudiomodules/api').WamEnv} IWamEnv */
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 const executable = () => {
 	/**

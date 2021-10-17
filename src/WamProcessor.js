@@ -1,26 +1,17 @@
-/** @typedef {import('./api/types').WamProcessor} IWamProcessor */
-/** @typedef {import('./api/types').WamParameter} WamParameter */
-/** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
-/** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('./api/types').WamParameterData} WamParameterData */
-/** @typedef {import('./api/types').WamParameterMap} WamParameterMap */
-/** @typedef {import('./api/types').WamEvent} WamEvent */
-/** @typedef {import('./api/types').WamTransportData} WamTransportData */
-/** @typedef {import('./api/types').WamMidiData} WamMidiData */
-/** @typedef {import('./api/types').WamBinaryData} WamBinaryData */
+/** @typedef {import('@webaudiomodules/api').WamProcessor} IWamProcessor */
+/** @typedef {import('@webaudiomodules/api').WamParameter} WamParameter */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('@webaudiomodules/api').WamParameterData} WamParameterData */
+/** @typedef {import('@webaudiomodules/api').WamParameterMap} WamParameterMap */
+/** @typedef {import('@webaudiomodules/api').WamEvent} WamEvent */
+/** @typedef {import('@webaudiomodules/api').WamTransportData} WamTransportData */
+/** @typedef {import('@webaudiomodules/api').WamMidiData} WamMidiData */
+/** @typedef {import('@webaudiomodules/api').WamBinaryData} WamBinaryData */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
-
-/* eslint-disable no-undef */
-/* eslint-disable no-empty-function */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-plusplus */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable lines-between-class-members */
-/* eslint-disable radix */
 
 /**
  * A WamEvent and corresponding message id used to trigger callbacks

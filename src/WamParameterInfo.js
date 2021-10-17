@@ -1,9 +1,6 @@
-/** @typedef {import('./api/types').WamParameterInfo} IWamParameterInfo */
-/** @typedef {import('./api/types').WamParameterType} WamParameterType */
-/** @typedef {import('./api/types').WamParameterConfiguration} WamParameterConfiguration */
-
-/* eslint-disable no-undef */
-/* eslint-disable no-underscore-dangle */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfo} IWamParameterInfo */
+/** @typedef {import('@webaudiomodules/api').WamParameterType} WamParameterType */
+/** @typedef {import('@webaudiomodules/api').WamParameterConfiguration} WamParameterConfiguration */
 
 /**
  * @param {number} x

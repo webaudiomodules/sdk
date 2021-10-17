@@ -1,27 +1,23 @@
+/** @typedef {import('@webaudiomodules/api').WamEvent} WamEvent */
+/** @typedef {import('@webaudiomodules/api').WamEventType} WamEventType */
+/** @typedef {import('@webaudiomodules/api').WamAutomationEvent} WamAutomationEvent */
+/** @typedef {import('@webaudiomodules/api').WamTransportEvent} WamTransportEvent */
+/** @typedef {import('@webaudiomodules/api').WamMidiEvent} WamMidiEvent */
+/** @typedef {import('@webaudiomodules/api').WamSysexEvent} WamSysexEvent */
+/** @typedef {import('@webaudiomodules/api').WamMpeEvent} WamMpeEvent */
+/** @typedef {import('@webaudiomodules/api').WamOscEvent} WamOscEvent */
+/** @typedef {import('@webaudiomodules/api').WamInfoEvent} WamInfoEvent */
+/** @typedef {import('@webaudiomodules/api').WamParameterData} WamParameterData */
+/** @typedef {import('@webaudiomodules/api').WamTransportData} WamTransportData */
+/** @typedef {import('@webaudiomodules/api').WamMidiData} WamMidiData */
+/** @typedef {import('@webaudiomodules/api').WamBinaryData} WamBinaryData */
+/** @typedef {import('@webaudiomodules/api').WamInfoData} WamInfoData */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('./types').RingBuffer} RingBuffer */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
-/** @typedef {import('./api/types').WamEvent} WamEvent */
-/** @typedef {import('./api/types').WamEventType} WamEventType */
-/** @typedef {import('./api/types').WamAutomationEvent} WamAutomationEvent */
-/** @typedef {import('./api/types').WamTransportEvent} WamTransportEvent */
-/** @typedef {import('./api/types').WamMidiEvent} WamMidiEvent */
-/** @typedef {import('./api/types').WamSysexEvent} WamSysexEvent */
-/** @typedef {import('./api/types').WamMpeEvent} WamMpeEvent */
-/** @typedef {import('./api/types').WamOscEvent} WamOscEvent */
-/** @typedef {import('./api/types').WamInfoEvent} WamInfoEvent */
-/** @typedef {import('./api/types').WamParameterData} WamParameterData */
-/** @typedef {import('./api/types').WamTransportData} WamTransportData */
-/** @typedef {import('./api/types').WamMidiData} WamMidiData */
-/** @typedef {import('./api/types').WamBinaryData} WamBinaryData */
-/** @typedef {import('./api/types').WamInfoData} WamInfoData */
 /** @typedef {import('./types').WamEventRingBuffer} IWamEventRingBuffer */
 /** @typedef {typeof import('./types').WamEventRingBuffer} WamEventRingBufferConstructor */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-
-/* eslint-disable no-undef */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-underscore-dangle */
 
 /**
  * @returns {WamEventRingBufferConstructor}

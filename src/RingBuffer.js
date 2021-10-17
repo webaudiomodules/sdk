@@ -3,10 +3,6 @@
 /** @typedef {import('./types').RingBuffer} IRingBuffer */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-undef */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-underscore-dangle */
 
 /**
  * @returns {RingBufferConstructor}

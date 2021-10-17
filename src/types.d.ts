@@ -1,6 +1,5 @@
-/* eslint-disable object-curly-newline */
-/* eslint-disable max-len */
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from './api/types';
+
+import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */

@@ -1,9 +1,9 @@
-/** @typedef {import('./api/types').WamNode} IWamNode */
-/** @typedef {import('./api/types').WebAudioModule} WebAudioModule */
-/** @typedef {import('./api/types').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('./api/types').WamParameterDataMap} WamParameterDataMap */
-/** @typedef {import('./api/types').WamEvent} WamEvent */
-/** @typedef {import('./api/types').WamEventType} WamEventType */
+/** @typedef {import('@webaudiomodules/api').WamNode} IWamNode */
+/** @typedef {import('@webaudiomodules/api').WebAudioModule} WebAudioModule */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap */
+/** @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap */
+/** @typedef {import('@webaudiomodules/api').WamEvent} WamEvent */
+/** @typedef {import('@webaudiomodules/api').WamEventType} WamEventType */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
 
 import getRingBuffer from './RingBuffer.js';
@@ -11,13 +11,6 @@ import getWamEventRingBuffer from './WamEventRingBuffer.js';
 
 const RingBuffer = getRingBuffer();
 const WamEventRingBuffer = getWamEventRingBuffer();
-
-/* eslint-disable no-empty-function */
-/* eslint-disable no-unused-vars */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable lines-between-class-members */
 
 /**
  * @implements {IWamNode}

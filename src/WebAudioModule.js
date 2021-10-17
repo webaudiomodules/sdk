@@ -1,14 +1,7 @@
-/** @typedef {import('./api/types').WamDescriptor} WamDescriptor */
-/** @typedef {import('./api/types').WamNode} WamNode */
+/** @typedef {import('@webaudiomodules/api').WamDescriptor} WamDescriptor */
+/** @typedef {import('@webaudiomodules/api').WamNode} WamNode */
 
-import AbstractWebAudioModule from './api/AbstractWebAudioModule.js';
-
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-unused-vars */
-/* eslint-disable lines-between-class-members */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable indent */
-/* eslint-disable no-console */
+import AbstractWebAudioModule from '@webaudiomodules/api/src/AbstractWebAudioModule.js';
 
 class WebAudioModule extends AbstractWebAudioModule {
 	static get isWebAudioModuleConstructor() {

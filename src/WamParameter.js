@@ -1,9 +1,5 @@
-/** @typedef {import('./api/types').WamParameter} IWamParameter */
-/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
-
-/* eslint-disable no-undef */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable max-classes-per-file */
+/** @typedef {import('@webaudiomodules/api').WamParameter} IWamParameter */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo */
 
 /** @implements {IWamParameter} */
 export default class WamParameter {

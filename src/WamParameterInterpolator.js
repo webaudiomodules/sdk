@@ -1,8 +1,4 @@
-/** @typedef {import('./api/types').WamParameterInfo} WamParameterInfo */
-
-/* eslint-disable no-undef */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-underscore-dangle */
+/** @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo */
 
 const samplesPerQuantum = 128;
 const nullTableKey = '0_0';

@@ -23,12 +23,10 @@
   },
   "scriptPreprocessor": "node_modules/babel-jest",
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
-    "@babel/preset-typescript": "^7.15.0",
     "@types/jest": "^27.0.2",
     "@webaudiomodules/api": "^2.0.0-alpha.0",
     "esbuild": "^0.13.8",
+    "esbuild-jest": "^0.5.0",
     "jest": "^27.0.5",
     "typescript": "^4.4.3"
   },

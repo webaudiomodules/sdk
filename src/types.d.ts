@@ -368,8 +368,8 @@ export interface WebAudioModule<Node extends IWamNode = IWamNode> extends IWebAu
 
 export const WebAudioModule: {
 	prototype: WebAudioModule;
-	createInstance<Node extends WamNode = WamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
-	new <Node extends WamNode = WamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
+	createInstance<Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
+	new <Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {

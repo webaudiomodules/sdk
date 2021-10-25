@@ -1,9 +1,9 @@
 /** @typedef {import('@webaudiomodules/api').WamDescriptor} WamDescriptor */
 /** @typedef {import('@webaudiomodules/api').WamNode} WamNode */
+/** @template T @typedef {import('@webaudiomodules/api').WebAudioModule} IWebAudioModule<T> */
 
-import AbstractWebAudioModule from '@webaudiomodules/api/src/AbstractWebAudioModule.js';
-
-class WebAudioModule extends AbstractWebAudioModule {
+/** @implements {IWebAudioModule<WamNode>} */
+class WebAudioModule {
 	static get isWebAudioModuleConstructor() {
 		return true;
 	}
@@ -11,7 +11,7 @@ class WebAudioModule extends AbstractWebAudioModule {
 	/**
 	 * @param {BaseAudioContext} audioContext
 	 * @param {any} [initialState]
-	 * @returns {Promise<AbstractWebAudioModule<any>>}
+	 * @returns {Promise<IWebAudioModule<any>>}
 	 */
 	static createInstance(audioContext, initialState) {
 		return new this(audioContext).initialize(initialState);
@@ -19,7 +19,6 @@ class WebAudioModule extends AbstractWebAudioModule {
 
 	/** @param {BaseAudioContext} audioContext */
 	constructor(audioContext) {
-		super(audioContext);
 		this._audioContext = audioContext;
 		this._initialized = false;
 		/** @type {WamNode} */

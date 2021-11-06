@@ -6,8 +6,15 @@
 /** @typedef {import('@webaudiomodules/api').WamEventType} WamEventType */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
 
+import addFunctionModule from './addFunctionModule.js';
 import getRingBuffer from './RingBuffer.js';
+import uuid from './uuid.js';
+import getWamArrayRingBuffer from './WamArrayRingBuffer.js';
 import getWamEventRingBuffer from './WamEventRingBuffer.js';
+import getWamParameter from './WamParameter.js';
+import getWamParameterInfo from './WamParameterInfo.js';
+import getWamParameterInterpolator from './WamParameterInterpolator.js';
+import getWamProcessor from './WamProcessor.js';
 
 const RingBuffer = getRingBuffer();
 const WamEventRingBuffer = getWamEventRingBuffer();
@@ -22,14 +29,30 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {string} baseURL
 	 */
 	static async addModules(audioContext, baseURL) {
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/RingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEventRingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamArrayRingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEnv.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameter.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInfo.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInterpolator.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamProcessor.js`);
+		const { audioWorklet } = audioContext;
+		const RingBuffer = uuid();
+		const WamEventRingBuffer = uuid();
+		const WamArrayRingBuffer = uuid();
+		const WamParameter = uuid();
+		const WamParameterInfo = uuid();
+		const WamParameterInterpolator = uuid();
+		const WamProcessor = uuid();
+		await addFunctionModule(audioWorklet, getRingBuffer, RingBuffer);
+		await addFunctionModule(audioWorklet, getWamEventRingBuffer, WamEventRingBuffer);
+		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, WamArrayRingBuffer);
+		await addFunctionModule(audioWorklet, getWamParameter, WamParameter);
+		await addFunctionModule(audioWorklet, getWamParameterInfo, WamParameterInfo);
+		await addFunctionModule(audioWorklet, getWamParameterInterpolator, WamParameterInterpolator);
+		await addFunctionModule(audioWorklet, getWamProcessor, WamProcessor, { RingBuffer, WamEventRingBuffer, WamParameter, WamParameterInterpolator });
+		return {
+			RingBuffer,
+			WamEventRingBuffer,
+			WamArrayRingBuffer,
+			WamParameter,
+			WamParameterInfo,
+			WamParameterInterpolator,
+			WamProcessor
+		};
 	}
 
 	/**

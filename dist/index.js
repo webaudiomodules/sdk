@@ -1351,10 +1351,10 @@ var getWamProcessor = (uuid2, dependencies) => {
     AudioWorkletProcessor,
     webAudioModules
   } = audioWorkletGlobalScope8;
-  const RingBuffer2 = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.RingBuffer] || audioWorkletGlobalScope8.RingBuffer;
-  const WamEventRingBuffer2 = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamEventRingBuffer] || audioWorkletGlobalScope8.WamEventRingBuffer;
-  const WamParameter = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamParameter] || audioWorkletGlobalScope8.WamParameter;
-  const WamParameterInterpolator = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamParameterInterpolator] || audioWorkletGlobalScope8.WamParameterInterpolator;
+  const RingBuffer2 = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.RingBuffer) || "RingBuffer"];
+  const WamEventRingBuffer2 = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamEventRingBuffer) || "WamEventRingBuffer"];
+  const WamParameter = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamParameter) || "WamParameter"];
+  const WamParameterInterpolator = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamParameterInterpolator) || "WamParameterInterpolator"];
   class WamProcessor extends AudioWorkletProcessor {
     constructor(options) {
       super(options);

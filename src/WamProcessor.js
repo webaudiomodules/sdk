@@ -31,13 +31,13 @@ const getWamProcessor = (uuid, dependencies) => {
 		webAudioModules,
 	} = audioWorkletGlobalScope;
 	/** @type {AudioWorkletGlobalScope["RingBuffer"]} */
-	const RingBuffer = audioWorkletGlobalScope[dependencies?.RingBuffer] || audioWorkletGlobalScope.RingBuffer;
+	const RingBuffer = audioWorkletGlobalScope[dependencies?.RingBuffer || "RingBuffer"];
 	/** @type {AudioWorkletGlobalScope["WamEventRingBuffer"]} */
-	const WamEventRingBuffer = audioWorkletGlobalScope[dependencies?.WamEventRingBuffer] || audioWorkletGlobalScope.WamEventRingBuffer;
+	const WamEventRingBuffer = audioWorkletGlobalScope[dependencies?.WamEventRingBuffer || "WamEventRingBuffer"];
 	/** @type {AudioWorkletGlobalScope["WamParameter"]} */
-	const WamParameter = audioWorkletGlobalScope[dependencies?.WamParameter] || audioWorkletGlobalScope.WamParameter;
+	const WamParameter = audioWorkletGlobalScope[dependencies?.WamParameter || "WamParameter"];
 	/** @type {AudioWorkletGlobalScope["WamParameterInterpolator"]} */
-	const WamParameterInterpolator = audioWorkletGlobalScope[dependencies?.WamParameterInterpolator] || audioWorkletGlobalScope.WamParameterInterpolator;
+	const WamParameterInterpolator = audioWorkletGlobalScope[dependencies?.WamParameterInterpolator || "WamParameterInterpolator"];
 		
 	/**
 	 * @implements {IWamProcessor}

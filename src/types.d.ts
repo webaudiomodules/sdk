@@ -287,7 +287,15 @@ export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListe
 }
 export const WamNode: {
 	prototype: WamNode;
-	addModules(audioContext: BaseAudioContext, baseURL: string): Promise<void>;
+	addModules(audioContext: BaseAudioContext, baseURL: string): Promise<{
+		RingBuffer: string;
+		WamEventRingBuffer: string;
+		WamArrayRingBuffer: string;
+		WamParameter: string;
+		WamParameterInfo: string;
+		WamParameterInterpolator: string;
+		WamProcessor: string;
+	}>;
 	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 

@@ -3,10 +3,12 @@
 
 import expect from './jestUtilities';
 import { diffArray } from './testUtilities';
-import WamParameterInfo from '../src/WamParameterInfo.js';
-import WamParameterInterpolator from '../src/WamParameterInterpolator.js';
+import getWamParameterInfo from '../src/WamParameterInfo.js';
+import getWamParameterInterpolator from '../src/WamParameterInterpolator.js';
 
 const samplesPerRenderQuantum = 128;
+const WamParameterInfo = getWamParameterInfo();
+const WamParameterInterpolator = getWamParameterInterpolator();
 
 describe('WamParameterInterpolator Suite', () => {
 	// TODO setup should be in a 'beforeEach' but TS can't resolve scope...

@@ -40,7 +40,7 @@ class WebAudioModule {
 			vendor: 'WebAudioModuleVendor',
 			description: '',
 			version: '0.0.0',
-			sdkVersion: '1.0.0',
+			apiVersion: '2.0.0',
 			thumbnail: '',
 			keywords: [],
 			isInstrument: false,

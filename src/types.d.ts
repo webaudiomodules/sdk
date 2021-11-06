@@ -1,6 +1,17 @@
 
 import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
 
+declare global {
+    interface Crypto {
+        randomUUID?(): string;
+    }
+    var Crypto: {
+        prototype: Crypto;
+        new(): Crypto;
+    };
+    var crypto: Crypto;
+}
+
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
 	readonly info: WamParameterInfo;
@@ -284,23 +295,23 @@ export const WamNode: {
  * A WamEvent and corresponding message id used to trigger callbacks
  * on the main thread once the event has been processed.
  */
-export type PendingWamEvent = {
+export interface PendingWamEvent {
 	id: number;
 	event: WamEvent;
-};
+}
 
 /**
  * A range of sample indices and corresponding list of simultaneous
  * WamEvents to be processed at the beginning of the slice.
  */
-export type ProcessingSlice = {
+export interface ProcessingSlice {
 	range: [number, number];
 	events: WamEvent[];
-};
+}
 
-export type WamParameterInterpolatorMap = {
+export interface WamParameterInterpolatorMap {
 	[id: string]: WamParameterInterpolator;
-};
+}
 
 export interface WamProcessor extends IWamProcessor {
 	readonly downstream: Set<IWamProcessor>
@@ -373,11 +384,11 @@ export const WebAudioModule: {
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
 export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
-	RingBuffer: typeof RingBuffer;
-	WamEventRingBuffer: typeof WamEventRingBuffer;
-	WamArrayRingBuffer: typeof WamArrayRingBuffer;
-	WamParameter: typeof WamParameter;
-	WamParameterInfo: typeof WamParameterInfo;
-	WamParameterInterpolator: typeof WamParameterInterpolator;
-	WamProcessor: typeof WamProcessor;
+	RingBuffer?: typeof RingBuffer;
+	WamEventRingBuffer?: typeof WamEventRingBuffer;
+	WamArrayRingBuffer?: typeof WamArrayRingBuffer;
+	WamParameter?: typeof WamParameter;
+	WamParameterInfo?: typeof WamParameterInfo;
+	WamParameterInterpolator?: typeof WamParameterInterpolator;
+	WamProcessor?: typeof WamProcessor;
 }

@@ -2,7 +2,10 @@
 /** @typedef {import('@webaudiomodules/api').WamEnv} IWamEnv */
 /** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
-const executable = () => {
+/**
+ * @param {string} apiVersion
+ */
+const initializeWamEnv = (apiVersion) => {
 	/**
 	 * @implements {IWamEnv}
 	 */
@@ -12,6 +15,10 @@ const executable = () => {
 			this._eventGraph = new Map();
 			/** @type {Record<string, IWamProcessor>} */
 			this._processors = {};
+		}
+
+		get apiVersion() {
+			return apiVersion;
 		}
 
 		get eventGraph() {
@@ -100,11 +107,4 @@ const executable = () => {
 	return WamEnv;
 };
 
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.webAudioModules) executable();
-}
-
-export default executable;
+export default initializeWamEnv;

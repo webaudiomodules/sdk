@@ -1,3 +1,5 @@
 import { WamParameter } from '@webaudiomodules/api';
 
-export default WamParameter;
+declare const getWamParameter: (uuid?: string) => typeof WamParameter;
+
+export default getWamParameter;

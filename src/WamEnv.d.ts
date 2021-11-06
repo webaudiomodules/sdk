@@ -1,5 +1,3 @@
-import { WamEnv } from '@webaudiomodules/api';
+declare const initializeWamEnv: (apiVersion: string) => void;
 
-declare const executable: () => WamEnv;
-
-export default executable;
+export default initializeWamEnv;

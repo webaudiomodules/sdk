@@ -7,9 +7,10 @@
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /**
+ * @param {string} [uuid]
  * @returns {WamArrayRingBufferConstructor}
  */
-const executable = () => {
+const getWamArrayRingBuffer = (uuid) => {
 	/**
 	 * @implements {IWamArrayRingBuffer}
 	 */
@@ -130,8 +131,10 @@ const executable = () => {
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!audioWorkletGlobalScope.WamArrayRingBuffer) {
-			audioWorkletGlobalScope.WamArrayRingBuffer = WamArrayRingBuffer;
+		if (uuid) {
+			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamArrayRingBuffer;
+		} else {
+			if (!audioWorkletGlobalScope.WamArrayRingBuffer) audioWorkletGlobalScope.WamArrayRingBuffer = WamArrayRingBuffer;
 		}
 	}
 
@@ -141,7 +144,7 @@ const executable = () => {
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;
 if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamArrayRingBuffer) executable();
+	if (!audioWorkletGlobalScope.WamArrayRingBuffer) getWamArrayRingBuffer();
 }
 
-export default executable;
+export default getWamArrayRingBuffer;

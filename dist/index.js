@@ -39,7 +39,7 @@ var WebAudioModule = class {
       vendor: "WebAudioModuleVendor",
       description: "",
       version: "0.0.0",
-      sdkVersion: "1.0.0",
+      apiVersion: "2.0.0",
       thumbnail: "",
       keywords: [],
       isInstrument: false,
@@ -133,96 +133,8 @@ var WebAudioModule = class {
 };
 var WebAudioModule_default = WebAudioModule;
 
-// src/WamParameterInfo.js
-var normExp = (x, e) => e === 0 ? x : x ** 1.5 ** -e;
-var denormExp = (x, e) => e === 0 ? x : x ** 1.5 ** e;
-var normalize = (x, min, max, e = 0) => min === 0 && max === 1 ? normExp(x, e) : normExp((x - min) / (max - min) || 0, e);
-var denormalize = (x, min, max, e = 0) => min === 0 && max === 1 ? denormExp(x, e) : denormExp(x, e) * (max - min) + min;
-var inRange = (x, min, max) => x >= min && x <= max;
-var WamParameterInfo = class {
-  constructor(id, config = {}) {
-    let {
-      type,
-      label,
-      defaultValue,
-      minValue,
-      maxValue,
-      discreteStep,
-      exponent,
-      choices,
-      units
-    } = config;
-    if (type === void 0)
-      type = "float";
-    if (label === void 0)
-      label = "";
-    if (defaultValue === void 0)
-      defaultValue = 0;
-    if (choices === void 0)
-      choices = [];
-    if (type === "boolean" || type === "choice") {
-      discreteStep = 1;
-      minValue = 0;
-      if (choices.length)
-        maxValue = choices.length - 1;
-      else
-        maxValue = 1;
-    } else {
-      if (minValue === void 0)
-        minValue = 0;
-      if (maxValue === void 0)
-        maxValue = 1;
-      if (discreteStep === void 0)
-        discreteStep = 0;
-      if (exponent === void 0)
-        exponent = 0;
-      if (units === void 0)
-        units = "";
-    }
-    const errBase = `Param config error | ${id}: `;
-    if (minValue >= maxValue)
-      throw Error(errBase.concat("minValue must be less than maxValue"));
-    if (!inRange(defaultValue, minValue, maxValue))
-      throw Error(errBase.concat("defaultValue out of range"));
-    if (discreteStep % 1 || discreteStep < 0) {
-      throw Error(errBase.concat("discreteStep must be a non-negative integer"));
-    } else if (discreteStep > 0 && (minValue % 1 || maxValue % 1 || defaultValue % 1)) {
-      throw Error(errBase.concat("non-zero discreteStep requires integer minValue, maxValue, and defaultValue"));
-    }
-    if (type === "choice" && !choices.length) {
-      throw Error(errBase.concat("choice type parameter requires list of strings in choices"));
-    }
-    this.id = id;
-    this.label = label;
-    this.type = type;
-    this.defaultValue = defaultValue;
-    this.minValue = minValue;
-    this.maxValue = maxValue;
-    this.discreteStep = discreteStep;
-    this.exponent = exponent;
-    this.choices = choices;
-    this.units = units;
-  }
-  normalize(value) {
-    return normalize(value, this.minValue, this.maxValue, this.exponent);
-  }
-  denormalize(valueNorm) {
-    return denormalize(valueNorm, this.minValue, this.maxValue, this.exponent);
-  }
-  valueString(value) {
-    if (this.choices)
-      return this.choices[value];
-    if (this.units !== "")
-      return `${value} ${this.units}`;
-    return `${value}`;
-  }
-};
-if (globalThis.AudioWorkletGlobalScope) {
-  globalThis.WamParameterInfo = WamParameterInfo;
-}
-
 // src/RingBuffer.js
-var executable = () => {
+var getRingBuffer = (uuid2) => {
   class RingBuffer2 {
     static getStorageForCapacity(capacity, Type) {
       if (!Type.BYTES_PER_ELEMENT) {
@@ -321,22 +233,180 @@ var executable = () => {
       }
     }
   }
-  const audioWorkletGlobalScope3 = globalThis;
-  if (audioWorkletGlobalScope3.AudioWorkletProcessor) {
-    if (!audioWorkletGlobalScope3.RingBuffer)
-      audioWorkletGlobalScope3.RingBuffer = RingBuffer2;
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = RingBuffer2;
+    } else {
+      if (!audioWorkletGlobalScope8.RingBuffer)
+        audioWorkletGlobalScope8.RingBuffer = RingBuffer2;
+    }
   }
   return RingBuffer2;
 };
 var audioWorkletGlobalScope = globalThis;
 if (audioWorkletGlobalScope.AudioWorkletProcessor) {
   if (!audioWorkletGlobalScope.RingBuffer)
-    executable();
+    getRingBuffer();
 }
-var RingBuffer_default = executable;
+var RingBuffer_default = getRingBuffer;
+
+// src/WamArrayRingBuffer.js
+var getWamArrayRingBuffer = (uuid2) => {
+  const _WamArrayRingBuffer = class {
+    static getStorageForEventCapacity(RingBuffer2, arrayLength, arrayType, maxArrayCapacity = void 0) {
+      if (maxArrayCapacity === void 0)
+        maxArrayCapacity = _WamArrayRingBuffer.DefaultArrayCapacity;
+      else
+        maxArrayCapacity = Math.max(maxArrayCapacity, _WamArrayRingBuffer.DefaultArrayCapacity);
+      if (!arrayType.BYTES_PER_ELEMENT) {
+        throw new Error("Pass in a ArrayBuffer subclass");
+      }
+      const capacity = arrayLength * maxArrayCapacity;
+      return RingBuffer2.getStorageForCapacity(capacity, arrayType);
+    }
+    constructor(RingBuffer2, sab, arrayLength, arrayType, maxArrayCapacity = void 0) {
+      if (!arrayType.BYTES_PER_ELEMENT) {
+        throw new Error("Pass in a ArrayBuffer subclass");
+      }
+      this._arrayLength = arrayLength;
+      this._arrayType = arrayType;
+      this._arrayElementSizeBytes = arrayType.BYTES_PER_ELEMENT;
+      this._arraySizeBytes = this._arrayLength * this._arrayElementSizeBytes;
+      this._sab = sab;
+      if (maxArrayCapacity === void 0)
+        maxArrayCapacity = _WamArrayRingBuffer.DefaultArrayCapacity;
+      else
+        maxArrayCapacity = Math.max(maxArrayCapacity, _WamArrayRingBuffer.DefaultArrayCapacity);
+      this._arrayArray = new arrayType(this._arrayLength);
+      this._rb = new RingBuffer2(this._sab, arrayType);
+    }
+    write(array) {
+      if (array.length !== this._arrayLength)
+        return false;
+      const elementsAvailable = this._rb.availableWrite;
+      if (elementsAvailable < this._arrayLength)
+        return false;
+      let success = true;
+      const elementsWritten = this._rb.push(array);
+      if (elementsWritten != this._arrayLength)
+        success = false;
+      return success;
+    }
+    read(array, newest) {
+      if (array.length !== this._arrayLength)
+        return false;
+      const elementsAvailable = this._rb.availableRead;
+      if (elementsAvailable < this._arrayLength)
+        return false;
+      if (newest && elementsAvailable > this._arrayLength)
+        this._rb.pop(elementsAvailable - this._arrayLength);
+      let success = false;
+      const elementsRead = this._rb.pop(array);
+      if (elementsRead === this._arrayLength)
+        success = true;
+      return success;
+    }
+  };
+  let WamArrayRingBuffer = _WamArrayRingBuffer;
+  __publicField(WamArrayRingBuffer, "DefaultArrayCapacity", 2);
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamArrayRingBuffer;
+    } else {
+      if (!audioWorkletGlobalScope8.WamArrayRingBuffer)
+        audioWorkletGlobalScope8.WamArrayRingBuffer = WamArrayRingBuffer;
+    }
+  }
+  return WamArrayRingBuffer;
+};
+var audioWorkletGlobalScope2 = globalThis;
+if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope2.WamArrayRingBuffer)
+    getWamArrayRingBuffer();
+}
+var WamArrayRingBuffer_default = getWamArrayRingBuffer;
+
+// src/WamEnv.js
+var initializeWamEnv = (apiVersion) => {
+  class WamEnv {
+    constructor() {
+      this._eventGraph = new Map();
+      this._processors = {};
+    }
+    get apiVersion() {
+      return apiVersion;
+    }
+    get eventGraph() {
+      return this._eventGraph;
+    }
+    get processors() {
+      return this._processors;
+    }
+    create(wam) {
+      this._processors[wam.instanceId] = wam;
+    }
+    connectEvents(from, to, output = 0) {
+      let outputMap;
+      if (this._eventGraph.has(from)) {
+        outputMap = this._eventGraph.get(from);
+      } else {
+        outputMap = [];
+        this._eventGraph.set(from, outputMap);
+      }
+      if (outputMap[output]) {
+        outputMap[output].add(to);
+      } else {
+        const set = new Set();
+        set.add(to);
+        outputMap[output] = set;
+      }
+    }
+    disconnectEvents(from, to, output) {
+      if (!this._eventGraph.has(from))
+        return;
+      const outputMap = this._eventGraph.get(from);
+      if (typeof to === "undefined") {
+        outputMap.forEach((set) => {
+          if (set)
+            set.clear();
+        });
+        return;
+      }
+      if (typeof output === "undefined") {
+        outputMap.forEach((set) => {
+          if (set)
+            set.delete(to);
+        });
+        return;
+      }
+      if (!outputMap[output])
+        return;
+      outputMap[output].delete(to);
+    }
+    destroy(wam) {
+      if (this.eventGraph.has(wam))
+        this.eventGraph.delete(wam);
+      this.eventGraph.forEach((outputMap) => {
+        outputMap.forEach((set) => {
+          if (set && set.has(wam))
+            set.delete(wam);
+        });
+      });
+    }
+  }
+  const audioWorkletGlobalScope8 = globalThis;
+  if (!audioWorkletGlobalScope8.webAudioModules)
+    audioWorkletGlobalScope8.webAudioModules = new WamEnv();
+  return WamEnv;
+};
+var WamEnv_default = initializeWamEnv;
 
 // src/WamEventRingBuffer.js
-var executable2 = () => {
+var getWamEventRingBuffer = (uuid2) => {
   const _WamEventRingBuffer = class {
     static getStorageForEventCapacity(RingBuffer2, eventCapacity, maxBytesPerEvent = void 0) {
       if (maxBytesPerEvent === void 0)
@@ -660,20 +730,24 @@ var executable2 = () => {
   __publicField(WamEventRingBuffer2, "WamTransportEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamMidiEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamBinaryEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4);
-  const audioWorkletGlobalScope3 = globalThis;
-  if (audioWorkletGlobalScope3.AudioWorkletProcessor) {
-    if (!audioWorkletGlobalScope3.WamEventRingBuffer) {
-      audioWorkletGlobalScope3.WamEventRingBuffer = WamEventRingBuffer2;
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamEventRingBuffer2;
+    } else {
+      if (!audioWorkletGlobalScope8.WamEventRingBuffer)
+        audioWorkletGlobalScope8.WamEventRingBuffer = WamEventRingBuffer2;
     }
   }
   return WamEventRingBuffer2;
 };
-var audioWorkletGlobalScope2 = globalThis;
-if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope2.WamEventRingBuffer)
-    executable2();
+var audioWorkletGlobalScope3 = globalThis;
+if (audioWorkletGlobalScope3.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope3.WamEventRingBuffer)
+    getWamEventRingBuffer();
 }
-var WamEventRingBuffer_default = executable2;
+var WamEventRingBuffer_default = getWamEventRingBuffer;
 
 // src/WamNode.js
 var RingBuffer = RingBuffer_default();
@@ -938,9 +1012,761 @@ var WamNode = class extends AudioWorkletNode {
     }));
   }
 };
+
+// src/WamParameter.js
+var getWamParameter = (uuid2) => {
+  class WamParameter {
+    constructor(info) {
+      this.info = info;
+      this._value = info.defaultValue;
+    }
+    set value(value) {
+      this._value = value;
+    }
+    get value() {
+      return this._value;
+    }
+    set normalizedValue(valueNorm) {
+      this.value = this.info.denormalize(valueNorm);
+    }
+    get normalizedValue() {
+      return this.info.normalize(this.value);
+    }
+  }
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamParameter;
+    } else {
+      if (!audioWorkletGlobalScope8.WamParameter)
+        audioWorkletGlobalScope8.WamParameter = WamParameter;
+    }
+  }
+  return WamParameter;
+};
+var audioWorkletGlobalScope4 = globalThis;
+if (audioWorkletGlobalScope4.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope4.WamParameter)
+    getWamParameter();
+}
+var WamParameter_default = getWamParameter;
+
+// src/WamParameterInfo.js
+var getWamParameterInfo = (uuid2) => {
+  const normExp = (x, e) => e === 0 ? x : x ** 1.5 ** -e;
+  const denormExp = (x, e) => e === 0 ? x : x ** 1.5 ** e;
+  const normalize = (x, min, max, e = 0) => min === 0 && max === 1 ? normExp(x, e) : normExp((x - min) / (max - min) || 0, e);
+  const denormalize = (x, min, max, e = 0) => min === 0 && max === 1 ? denormExp(x, e) : denormExp(x, e) * (max - min) + min;
+  const inRange = (x, min, max) => x >= min && x <= max;
+  class WamParameterInfo {
+    constructor(id, config = {}) {
+      let {
+        type,
+        label,
+        defaultValue,
+        minValue,
+        maxValue,
+        discreteStep,
+        exponent,
+        choices,
+        units
+      } = config;
+      if (type === void 0)
+        type = "float";
+      if (label === void 0)
+        label = "";
+      if (defaultValue === void 0)
+        defaultValue = 0;
+      if (choices === void 0)
+        choices = [];
+      if (type === "boolean" || type === "choice") {
+        discreteStep = 1;
+        minValue = 0;
+        if (choices.length)
+          maxValue = choices.length - 1;
+        else
+          maxValue = 1;
+      } else {
+        if (minValue === void 0)
+          minValue = 0;
+        if (maxValue === void 0)
+          maxValue = 1;
+        if (discreteStep === void 0)
+          discreteStep = 0;
+        if (exponent === void 0)
+          exponent = 0;
+        if (units === void 0)
+          units = "";
+      }
+      const errBase = `Param config error | ${id}: `;
+      if (minValue >= maxValue)
+        throw Error(errBase.concat("minValue must be less than maxValue"));
+      if (!inRange(defaultValue, minValue, maxValue))
+        throw Error(errBase.concat("defaultValue out of range"));
+      if (discreteStep % 1 || discreteStep < 0) {
+        throw Error(errBase.concat("discreteStep must be a non-negative integer"));
+      } else if (discreteStep > 0 && (minValue % 1 || maxValue % 1 || defaultValue % 1)) {
+        throw Error(errBase.concat("non-zero discreteStep requires integer minValue, maxValue, and defaultValue"));
+      }
+      if (type === "choice" && !choices.length) {
+        throw Error(errBase.concat("choice type parameter requires list of strings in choices"));
+      }
+      this.id = id;
+      this.label = label;
+      this.type = type;
+      this.defaultValue = defaultValue;
+      this.minValue = minValue;
+      this.maxValue = maxValue;
+      this.discreteStep = discreteStep;
+      this.exponent = exponent;
+      this.choices = choices;
+      this.units = units;
+    }
+    normalize(value) {
+      return normalize(value, this.minValue, this.maxValue, this.exponent);
+    }
+    denormalize(valueNorm) {
+      return denormalize(valueNorm, this.minValue, this.maxValue, this.exponent);
+    }
+    valueString(value) {
+      if (this.choices)
+        return this.choices[value];
+      if (this.units !== "")
+        return `${value} ${this.units}`;
+      return `${value}`;
+    }
+  }
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamParameterInfo;
+    } else {
+      if (!audioWorkletGlobalScope8.WamParameterInfo)
+        audioWorkletGlobalScope8.WamParameterInfo = WamParameterInfo;
+    }
+  }
+  return WamParameterInfo;
+};
+var audioWorkletGlobalScope5 = globalThis;
+if (audioWorkletGlobalScope5.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope5.WamParameterInfo)
+    getWamParameterInfo();
+}
+var WamParameterInfo_default = getWamParameterInfo;
+
+// src/WamParameterInterpolator.js
+var getWamParameterInterpolator = (uuid2) => {
+  const samplesPerQuantum = 128;
+  const nullTableKey = "0_0";
+  const _WamParameterInterpolator = class {
+    constructor(info, samplesPerInterpolation, skew = 0) {
+      if (!_WamParameterInterpolator._tables) {
+        _WamParameterInterpolator._tables = { nullTableKey: new Float32Array(0) };
+        _WamParameterInterpolator._tableReferences = { nullTableKey: [] };
+      }
+      this.info = info;
+      this.values = new Float32Array(samplesPerQuantum);
+      this._tableKey = nullTableKey;
+      this._table = _WamParameterInterpolator._tables[this._tableKey];
+      this._skew = 2;
+      const { discreteStep } = info;
+      this._discrete = !!discreteStep;
+      this._N = this._discrete ? 0 : samplesPerInterpolation;
+      this._n = 0;
+      this._startValue = info.defaultValue;
+      this._endValue = info.defaultValue;
+      this._currentValue = info.defaultValue;
+      this._deltaValue = 0;
+      this._inverted = false;
+      this._changed = true;
+      this._filled = 0;
+      if (!this._discrete)
+        this.setSkew(skew);
+      else
+        this._skew = 0;
+      this.setStartValue(this._startValue);
+    }
+    _removeTableReference(oldKey) {
+      if (oldKey === nullTableKey)
+        return;
+      const { id } = this.info;
+      const references = _WamParameterInterpolator._tableReferences[oldKey];
+      if (references) {
+        const index = references.indexOf(id);
+        if (index !== -1)
+          references.splice(index, 1);
+        if (references.length === 0) {
+          delete _WamParameterInterpolator._tables[oldKey];
+          delete _WamParameterInterpolator._tableReferences[oldKey];
+        }
+      }
+    }
+    setSkew(skew) {
+      if (this._skew === skew || this._discrete)
+        return;
+      if (skew < -1 || skew > 1)
+        throw Error("skew must be in range [-1.0, 1.0]");
+      const newKey = [this._N, skew].join("_");
+      const oldKey = this._tableKey;
+      const { id } = this.info;
+      if (newKey === oldKey)
+        return;
+      if (_WamParameterInterpolator._tables[newKey]) {
+        const references = _WamParameterInterpolator._tableReferences[newKey];
+        if (references)
+          references.push(id);
+        else
+          _WamParameterInterpolator._tableReferences[newKey] = [id];
+      } else {
+        let e = Math.abs(skew);
+        e = Math.pow(3 - e, e * (e + 2));
+        const linear = e === 1;
+        const N = this._N;
+        const table = new Float32Array(N + 1);
+        if (linear)
+          for (let n = 0; n <= N; ++n)
+            table[n] = n / N;
+        else
+          for (let n = 0; n <= N; ++n)
+            table[n] = (n / N) ** e;
+        _WamParameterInterpolator._tables[newKey] = table;
+        _WamParameterInterpolator._tableReferences[newKey] = [id];
+      }
+      this._removeTableReference(oldKey);
+      this._skew = skew;
+      this._tableKey = newKey;
+      this._table = _WamParameterInterpolator._tables[this._tableKey];
+    }
+    setStartValue(value, fill = true) {
+      this._n = this._N;
+      this._startValue = value;
+      this._endValue = value;
+      this._currentValue = value;
+      this._deltaValue = 0;
+      this._inverted = false;
+      if (fill) {
+        this.values.fill(value);
+        this._changed = true;
+        this._filled = this.values.length;
+      } else {
+        this._changed = false;
+        this._filled = 0;
+      }
+    }
+    setEndValue(value) {
+      if (value === this._endValue)
+        return;
+      this._n = 0;
+      this._startValue = this._currentValue;
+      this._endValue = value;
+      this._deltaValue = this._endValue - this._startValue;
+      this._inverted = this._deltaValue > 0 && this._skew >= 0 || this._deltaValue <= 0 && this._skew < 0;
+      this._changed = false;
+      this._filled = 0;
+    }
+    process(startSample, endSample) {
+      if (this.done)
+        return;
+      const length = endSample - startSample;
+      let fill = 0;
+      const change = this._N - this._n;
+      if (this._discrete || !change)
+        fill = length;
+      else {
+        if (change < length) {
+          fill = Math.min(length - change, samplesPerQuantum);
+          endSample -= fill;
+        }
+        if (endSample > startSample) {
+          if (this._inverted) {
+            for (let i = startSample; i < endSample; ++i) {
+              const tableValue = 1 - this._table[this._N - ++this._n];
+              this.values[i] = this._startValue + tableValue * this._deltaValue;
+            }
+          } else {
+            for (let i = startSample; i < endSample; ++i) {
+              const tableValue = this._table[++this._n];
+              this.values[i] = this._startValue + tableValue * this._deltaValue;
+            }
+          }
+        }
+        if (fill > 0) {
+          startSample = endSample;
+          endSample += fill;
+        }
+      }
+      if (fill > 0) {
+        this.values.fill(this._endValue, startSample, endSample);
+        this._filled += fill;
+      }
+      this._currentValue = this.values[endSample - 1];
+      if (this._n === this._N) {
+        if (!this._changed)
+          this._changed = true;
+        else if (this._filled >= this.values.length) {
+          this.setStartValue(this._endValue, false);
+          this._changed = true;
+          this._filled = this.values.length;
+        }
+      }
+    }
+    get done() {
+      return this._changed && this._filled === this.values.length;
+    }
+    is(value) {
+      return this._endValue === value && this.done;
+    }
+    destroy() {
+      this._removeTableReference(this._tableKey);
+    }
+  };
+  let WamParameterInterpolator = _WamParameterInterpolator;
+  __publicField(WamParameterInterpolator, "_tables");
+  __publicField(WamParameterInterpolator, "_tableReferences");
+  const audioWorkletGlobalScope8 = globalThis;
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamParameterInterpolator;
+    } else {
+      if (!audioWorkletGlobalScope8.WamParameterInterpolator)
+        audioWorkletGlobalScope8.WamParameterInterpolator = WamParameterInterpolator;
+    }
+  }
+  return WamParameterInterpolator;
+};
+var audioWorkletGlobalScope6 = globalThis;
+if (audioWorkletGlobalScope6.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope6.WamParameterInterpolator)
+    getWamParameterInterpolator();
+}
+var WamParameterInterpolator_default = getWamParameterInterpolator;
+
+// src/WamProcessor.js
+var getWamProcessor = (uuid2, dependencies) => {
+  const audioWorkletGlobalScope8 = globalThis;
+  const {
+    AudioWorkletProcessor,
+    webAudioModules
+  } = audioWorkletGlobalScope8;
+  const RingBuffer2 = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.RingBuffer] || audioWorkletGlobalScope8.RingBuffer;
+  const WamEventRingBuffer2 = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamEventRingBuffer] || audioWorkletGlobalScope8.WamEventRingBuffer;
+  const WamParameter = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamParameter] || audioWorkletGlobalScope8.WamParameter;
+  const WamParameterInterpolator = audioWorkletGlobalScope8[dependencies == null ? void 0 : dependencies.WamParameterInterpolator] || audioWorkletGlobalScope8.WamParameterInterpolator;
+  class WamProcessor extends AudioWorkletProcessor {
+    constructor(options) {
+      super(options);
+      const {
+        moduleId,
+        instanceId,
+        useSab
+      } = options.processorOptions;
+      if (!moduleId)
+        throw Error("must provide moduleId argument in processorOptions!");
+      if (!instanceId)
+        throw Error("must provide instanceId argument in processorOptions!");
+      this.moduleId = moduleId;
+      this.instanceId = instanceId;
+      this._samplesPerQuantum = 128;
+      this._compensationDelay = 0;
+      this._parameterInfo = {};
+      this._parameterState = {};
+      this._parameterInterpolators = {};
+      this._eventQueue = [];
+      this._pendingResponses = {};
+      this._useSab = !!useSab && !!globalThis.SharedArrayBuffer;
+      this._eventSabReady = false;
+      this._audioToMainEventSab = null;
+      this._mainToAudioEventSab = null;
+      this._eventWriter = null;
+      this._eventReader = null;
+      this._initialized = false;
+      this._destroyed = false;
+      webAudioModules.create(this);
+      this.port.onmessage = this._onMessage.bind(this);
+      if (this._useSab)
+        this._configureSab();
+    }
+    get downstream() {
+      const wams = new Set();
+      const { eventGraph } = webAudioModules;
+      if (!eventGraph.has(this))
+        return wams;
+      const outputMap = eventGraph.get(this);
+      outputMap.forEach((set) => {
+        if (set)
+          set.forEach((wam) => wams.add(wam));
+      });
+      return wams;
+    }
+    getCompensationDelay() {
+      return this._compensationDelay;
+    }
+    scheduleEvents(...events) {
+      let i = 0;
+      while (i < events.length) {
+        this._eventQueue.push({ id: 0, event: events[i] });
+        i++;
+      }
+    }
+    emitEvents(...events) {
+      const { eventGraph } = webAudioModules;
+      if (!eventGraph.has(this))
+        return;
+      const downstream = eventGraph.get(this);
+      downstream.forEach((set) => {
+        if (set)
+          set.forEach((wam) => wam.scheduleEvents(...events));
+      });
+    }
+    clearEvents() {
+      this._eventQueue = [];
+    }
+    process(inputs, outputs, parameters) {
+      if (!this._initialized)
+        return true;
+      if (this._destroyed)
+        return false;
+      if (this._eventSabReady)
+        this.scheduleEvents(...this._eventReader.read());
+      const processingSlices = this._getProcessingSlices();
+      let i = 0;
+      while (i < processingSlices.length) {
+        const { range, events } = processingSlices[i];
+        const [startSample, endSample] = range;
+        let j = 0;
+        while (j < events.length) {
+          this._processEvent(events[j]);
+          j++;
+        }
+        this._interpolateParameterValues(startSample, endSample);
+        this._process(startSample, endSample, inputs, outputs, parameters);
+        i++;
+      }
+      return true;
+    }
+    destroy() {
+      this._destroyed = true;
+      this.port.close();
+      webAudioModules.destroy(this);
+    }
+    _generateWamParameterInfo() {
+      return {};
+    }
+    _initialize() {
+      this._parameterState = {};
+      this._parameterInterpolators = {};
+      this._parameterInfo = this._generateWamParameterInfo();
+      Object.keys(this._parameterInfo).forEach((parameterId) => {
+        const info = this._parameterInfo[parameterId];
+        this._parameterState[parameterId] = new WamParameter(this._parameterInfo[parameterId]);
+        this._parameterInterpolators[parameterId] = new WamParameterInterpolator(info, 256);
+      });
+    }
+    _configureSab() {
+      const eventCapacity = 2 ** 10;
+      const parameterIds = Object.keys(this._parameterInfo);
+      if (this._eventSabReady) {
+        this._eventWriter.setParameterIds(parameterIds);
+        this._eventReader.setParameterIds(parameterIds);
+      }
+      this.port.postMessage({ eventSab: { eventCapacity, parameterIds } });
+    }
+    async _onMessage(message) {
+      if (message.data.request) {
+        const {
+          id,
+          request,
+          content
+        } = message.data;
+        const response = { id, response: request };
+        const requestComponents = request.split("/");
+        const verb = requestComponents[0];
+        const noun = requestComponents[1];
+        response.content = "error";
+        if (verb === "get") {
+          if (noun === "parameterInfo") {
+            let { parameterIds } = content;
+            if (!parameterIds.length)
+              parameterIds = Object.keys(this._parameterInfo);
+            const parameterInfo = {};
+            let i = 0;
+            while (i < parameterIds.length) {
+              const parameterId = parameterIds[i];
+              parameterInfo[parameterId] = this._parameterInfo[parameterId];
+              i++;
+            }
+            response.content = parameterInfo;
+          } else if (noun === "parameterValues") {
+            let { normalized, parameterIds } = content;
+            response.content = this._getParameterValues(normalized, parameterIds);
+          } else if (noun === "state") {
+            response.content = this._getState();
+          } else if (noun === "compensationDelay") {
+            response.content = this.getCompensationDelay();
+          }
+        } else if (verb === "set") {
+          if (noun === "parameterValues") {
+            const { parameterValues } = content;
+            this._setParameterValues(parameterValues, true);
+            delete response.content;
+          } else if (noun === "state") {
+            const { state } = content;
+            this._setState(state);
+            delete response.content;
+          }
+        } else if (verb === "add") {
+          if (noun === "event") {
+            const { event } = content;
+            this._eventQueue.push({ id, event });
+            return;
+          }
+        } else if (verb === "remove") {
+          if (noun === "events") {
+            const ids = this._eventQueue.map((queued) => queued.id);
+            this.clearEvents();
+            response.content = ids;
+          }
+        } else if (verb === "connect") {
+          if (noun === "events") {
+            const { wamInstanceId, output } = content;
+            this._connectEvents(wamInstanceId, output);
+            delete response.content;
+          }
+        } else if (verb === "disconnect") {
+          if (noun === "events") {
+            const { wamInstanceId, output } = content;
+            this._disconnectEvents(wamInstanceId, output);
+            delete response.content;
+          }
+        } else if (verb === "initialize") {
+          if (noun === "processor") {
+            this._initialize();
+            this._initialized = true;
+            delete response.content;
+          } else if (noun === "eventSab") {
+            const { mainToAudioEventSab, audioToMainEventSab } = content;
+            this._audioToMainEventSab = audioToMainEventSab;
+            this._mainToAudioEventSab = mainToAudioEventSab;
+            const parameterIds = Object.keys(this._parameterInfo);
+            this._eventWriter = new WamEventRingBuffer2(RingBuffer2, this._audioToMainEventSab, parameterIds);
+            this._eventReader = new WamEventRingBuffer2(RingBuffer2, this._mainToAudioEventSab, parameterIds);
+            this._eventSabReady = true;
+            delete response.content;
+          }
+        }
+        this.port.postMessage(response);
+      } else if (message.data.destroy) {
+        this.destroy();
+      }
+    }
+    _onTransport(transportData) {
+      console.error("_onTransport not implemented!");
+    }
+    _onMidi(midiData) {
+      console.error("_onMidi not implemented!");
+    }
+    _onSysex(sysexData) {
+      console.error("_onMidi not implemented!");
+    }
+    _onMpe(mpeData) {
+      console.error("_onMpe not implemented!");
+    }
+    _onOsc(oscData) {
+      console.error("_onOsc not implemented!");
+    }
+    _setState(state) {
+      if (state.parameterValues)
+        this._setParameterValues(state.parameterValues, false);
+    }
+    _getState() {
+      return { parameterValues: this._getParameterValues(false) };
+    }
+    _getParameterValues(normalized, parameterIds) {
+      const parameterValues = {};
+      if (!parameterIds || !parameterIds.length)
+        parameterIds = Object.keys(this._parameterState);
+      let i = 0;
+      while (i < parameterIds.length) {
+        const id = parameterIds[i];
+        const parameter = this._parameterState[id];
+        parameterValues[id] = {
+          id,
+          value: normalized ? parameter.normalizedValue : parameter.value,
+          normalized
+        };
+        i++;
+      }
+      return parameterValues;
+    }
+    _setParameterValues(parameterUpdates, interpolate) {
+      const parameterIds = Object.keys(parameterUpdates);
+      let i = 0;
+      while (i < parameterIds.length) {
+        this._setParameterValue(parameterUpdates[parameterIds[i]], interpolate);
+        i++;
+      }
+    }
+    _setParameterValue(parameterUpdate, interpolate) {
+      const { id, value, normalized } = parameterUpdate;
+      const parameter = this._parameterState[id];
+      if (!parameter)
+        return;
+      if (!normalized)
+        parameter.value = value;
+      else
+        parameter.normalizedValue = value;
+      const interpolator = this._parameterInterpolators[id];
+      if (interpolate)
+        interpolator.setEndValue(parameter.value);
+      else
+        interpolator.setStartValue(parameter.value);
+    }
+    _interpolateParameterValues(startIndex, endIndex) {
+      const parameterIds = Object.keys(this._parameterInterpolators);
+      let i = 0;
+      while (i < parameterIds.length) {
+        this._parameterInterpolators[parameterIds[i]].process(startIndex, endIndex);
+        i++;
+      }
+    }
+    _connectEvents(wamInstanceId, output) {
+      const wam = webAudioModules.processors[wamInstanceId];
+      if (!wam)
+        return;
+      webAudioModules.connectEvents(this, wam, output);
+    }
+    _disconnectEvents(wamInstanceId, output) {
+      if (typeof wamInstanceId === "undefined") {
+        webAudioModules.disconnectEvents(this);
+        return;
+      }
+      const wam = webAudioModules.processors[wamInstanceId];
+      if (!wam)
+        return;
+      webAudioModules.disconnectEvents(this, wam, output);
+    }
+    _getProcessingSlices() {
+      const response = "add/event";
+      const { currentTime, sampleRate } = audioWorkletGlobalScope8;
+      const eventsBySampleIndex = {};
+      let i = 0;
+      while (i < this._eventQueue.length) {
+        const { id, event } = this._eventQueue[i];
+        const offsetSec = event.time - currentTime;
+        const sampleIndex = offsetSec > 0 ? Math.round(offsetSec * sampleRate) : 0;
+        if (sampleIndex < this._samplesPerQuantum) {
+          if (eventsBySampleIndex[sampleIndex])
+            eventsBySampleIndex[sampleIndex].push(event);
+          else
+            eventsBySampleIndex[sampleIndex] = [event];
+          if (id)
+            this.port.postMessage({ id, response });
+          else if (this._eventSabReady)
+            this._eventWriter.write(event);
+          else
+            this.port.postMessage({ event });
+          this._eventQueue.shift();
+          i = -1;
+        } else
+          break;
+        i++;
+      }
+      const processingSlices = [];
+      const keys = Object.keys(eventsBySampleIndex);
+      if (keys[0] !== "0") {
+        keys.unshift("0");
+        eventsBySampleIndex["0"] = [];
+      }
+      const lastIndex = keys.length - 1;
+      i = 0;
+      while (i < keys.length) {
+        const key = keys[i];
+        const startSample = parseInt(key);
+        const endSample = i < lastIndex ? parseInt(keys[i + 1]) : this._samplesPerQuantum;
+        processingSlices.push({ range: [startSample, endSample], events: eventsBySampleIndex[key] });
+        i++;
+      }
+      return processingSlices;
+    }
+    _processEvent(event) {
+      switch (event.type) {
+        case "wam-automation":
+          this._setParameterValue(event.data, true);
+          break;
+        case "wam-transport":
+          this._onTransport(event.data);
+          break;
+        case "wam-midi":
+          this._onMidi(event.data);
+          break;
+        case "wam-sysex":
+          this._onSysex(event.data);
+          break;
+        case "wam-mpe":
+          this._onMpe(event.data);
+          break;
+        case "wam-osc":
+          this._onOsc(event.data);
+          break;
+        default:
+          break;
+      }
+    }
+    _process(startSample, endSample, inputs, outputs, parameters) {
+      console.error("_process not implemented!");
+    }
+  }
+  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
+    if (uuid2) {
+      if (!audioWorkletGlobalScope8[uuid2])
+        audioWorkletGlobalScope8[uuid2] = WamProcessor;
+    } else {
+      if (!audioWorkletGlobalScope8.WamProcessor)
+        audioWorkletGlobalScope8.WamProcessor = WamProcessor;
+    }
+  }
+  return WamProcessor;
+};
+var audioWorkletGlobalScope7 = globalThis;
+if (audioWorkletGlobalScope7.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope7.WamProcessor)
+    getWamProcessor();
+}
+var WamProcessor_default = getWamProcessor;
+
+// src/addFunctionModule.js
+var addFunctionModule = (audioWorklet, processorFunction, ...injection) => {
+  const text = `(${processorFunction.toString()})(${injection.map((s) => JSON.stringify(s)).join(", ")});`;
+  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+  return audioWorklet.addModule(url);
+};
+var addFunctionModule_default = addFunctionModule;
+
+// src/uuid.js
+var uuid = () => {
+  var _a;
+  return ((_a = globalThis == null ? void 0 : globalThis.crypto) == null ? void 0 : _a.randomUUID) ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : r & 3 | 8;
+    return v.toString(16);
+  });
+};
+var uuid_default = uuid;
 export {
   WamNode,
-  WamParameterInfo,
-  WebAudioModule_default as WebAudioModule
+  WebAudioModule_default as WebAudioModule,
+  addFunctionModule_default as addFunctionModule,
+  RingBuffer_default as getRingBuffer,
+  WamArrayRingBuffer_default as getWamArrayRingBuffer,
+  WamEventRingBuffer_default as getWamEventRingBuffer,
+  WamParameter_default as getWamParameter,
+  WamParameterInfo_default as getWamParameterInfo,
+  WamParameterInterpolator_default as getWamParameterInterpolator,
+  WamProcessor_default as getWamProcessor,
+  WamEnv_default as initializeWamEnv,
+  uuid_default as uuid
 };
 //# sourceMappingURL=index.js.map

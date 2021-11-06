@@ -1,5 +1,5 @@
 import { RingBuffer } from './types';
 
-declare const executable: () => typeof RingBuffer;
+declare const getRingBuffer: (uuid?: string) => typeof RingBuffer;
 
-export default executable;
+export default getRingBuffer;

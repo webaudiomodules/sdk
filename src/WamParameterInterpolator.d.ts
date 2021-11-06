@@ -1,3 +1,5 @@
 import { WamParameterInterpolator } from './types';
 
-export default WamParameterInterpolator;
+declare const getWamParameterInterpolator: (uuid?: string) => typeof WamParameterInterpolator;
+
+export default getWamParameterInterpolator;

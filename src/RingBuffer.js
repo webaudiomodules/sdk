@@ -5,9 +5,10 @@
 /** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /**
+ * @param {string} [uuid]
  * @returns {RingBufferConstructor}
  */
-const executable = () => {
+const getRingBuffer = (uuid) => {
 	/**
 	 * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
 	 * The producer and the consumer can be on separate threads, but cannot change roles,
@@ -240,7 +241,11 @@ const executable = () => {
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!audioWorkletGlobalScope.RingBuffer) audioWorkletGlobalScope.RingBuffer = RingBuffer;
+		if (uuid) {
+			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = RingBuffer;
+		} else {
+			if (!audioWorkletGlobalScope.RingBuffer) audioWorkletGlobalScope.RingBuffer = RingBuffer;
+		}
 	}
 
 	return RingBuffer;
@@ -249,10 +254,10 @@ const executable = () => {
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;
 if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.RingBuffer) executable();
+	if (!audioWorkletGlobalScope.RingBuffer) getRingBuffer();
 }
 
-export default executable;
+export default getRingBuffer;
 
 /* Usage in main thread:
 import executable from 'RingBuffer.js';
@@ -269,9 +274,9 @@ const { RingBuffer } = globalThis;
 /* Usage in audio thread with a build system:
 // in main thread:
 import executable from 'RingBuffer.js';
-const blob = new Blob([`(${executable.toString()})();`], { type: 'text/javascript' })
+const blob = new Blob([`(${executable.toString()})(JSON.stringify(uuid));`], { type: 'text/javascript' });
 const url = window.URL.createObjectURL(blob);
 audioWorklet.addModule(url);
 // in audio thread
-const { RingBuffer } = globalThis;
+const { RingBuffer } = globalThis[uuid];
 */

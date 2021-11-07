@@ -334,6 +334,7 @@ const getWamParameterInterpolator = (uuid) => {
 			this._removeTableReference(this._tableKey);
 		}
 	}
+
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -347,6 +348,7 @@ const getWamParameterInterpolator = (uuid) => {
 
 	return WamParameterInterpolator;
 };
+
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;

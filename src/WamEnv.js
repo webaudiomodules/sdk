@@ -103,8 +103,18 @@ const initializeWamEnv = (apiVersion) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	if (!audioWorkletGlobalScope.webAudioModules) audioWorkletGlobalScope.webAudioModules = new WamEnv();
+	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		if (!audioWorkletGlobalScope.webAudioModules) audioWorkletGlobalScope.webAudioModules = new WamEnv();
+	}
+
 	return WamEnv;
 };
+
+/** @type {AudioWorkletGlobalScope} */
+// @ts-ignore
+const audioWorkletGlobalScope = globalThis;
+if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+	if (!audioWorkletGlobalScope.webAudioModules) initializeWamEnv("2.0.0");
+}
 
 export default initializeWamEnv;

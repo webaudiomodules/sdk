@@ -557,6 +557,7 @@ const getWamProcessor = (uuid, dependencies) => {
 			console.error('_process not implemented!');
 		}
 	}
+
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
 		if (uuid) {
 			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamProcessor;
@@ -567,6 +568,7 @@ const getWamProcessor = (uuid, dependencies) => {
 
 	return WamProcessor;
 };
+
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;

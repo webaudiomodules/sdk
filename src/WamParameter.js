@@ -50,6 +50,7 @@ const getWamParameter = (uuid) => {
 			return this.info.normalize(this.value);
 		}
 	}
+
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -63,6 +64,7 @@ const getWamParameter = (uuid) => {
 
 	return WamParameter;
 };
+
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;

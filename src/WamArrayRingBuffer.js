@@ -20,7 +20,7 @@ const getWamArrayRingBuffer = (uuid) => {
 		 *
 		 * @type {number}
 		 */
-		 static DefaultArrayCapacity = 2;
+		static DefaultArrayCapacity = 2;
 
 		/**
 		 * Returns a SharedArrayBuffer large enough to safely store the
@@ -127,6 +127,7 @@ const getWamArrayRingBuffer = (uuid) => {
 		}
 
 	}
+
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -140,6 +141,7 @@ const getWamArrayRingBuffer = (uuid) => {
 
 	return WamArrayRingBuffer;
 };
+
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;

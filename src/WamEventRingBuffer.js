@@ -516,6 +516,7 @@ const getWamEventRingBuffer = (uuid) => {
 		}
 
 	}
+
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -529,6 +530,7 @@ const getWamEventRingBuffer = (uuid) => {
 
 	return WamEventRingBuffer;
 };
+
 /** @type {AudioWorkletGlobalScope} */
 // @ts-ignore
 const audioWorkletGlobalScope = globalThis;

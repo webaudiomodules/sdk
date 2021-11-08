@@ -8,7 +8,6 @@
 
 import addFunctionModule from './addFunctionModule.js';
 import getRingBuffer from './RingBuffer.js';
-import uuid from './uuid.js';
 import getWamArrayRingBuffer from './WamArrayRingBuffer.js';
 import getWamEventRingBuffer from './WamEventRingBuffer.js';
 import getWamParameter from './WamParameter.js';
@@ -27,32 +26,17 @@ export default class WamNode extends AudioWorkletNode {
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
 	 * @param {string} baseURL
+	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL) {
+	static async addModules(audioContext, baseURL, moduleId) {
 		const { audioWorklet } = audioContext;
-		const RingBuffer = uuid();
-		const WamEventRingBuffer = uuid();
-		const WamArrayRingBuffer = uuid();
-		const WamParameter = uuid();
-		const WamParameterInfo = uuid();
-		const WamParameterInterpolator = uuid();
-		const WamProcessor = uuid();
-		await addFunctionModule(audioWorklet, getRingBuffer, RingBuffer);
-		await addFunctionModule(audioWorklet, getWamEventRingBuffer, WamEventRingBuffer);
-		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, WamArrayRingBuffer);
-		await addFunctionModule(audioWorklet, getWamParameter, WamParameter);
-		await addFunctionModule(audioWorklet, getWamParameterInfo, WamParameterInfo);
-		await addFunctionModule(audioWorklet, getWamParameterInterpolator, WamParameterInterpolator);
-		await addFunctionModule(audioWorklet, getWamProcessor, WamProcessor, { RingBuffer, WamEventRingBuffer, WamParameter, WamParameterInterpolator });
-		return {
-			RingBuffer,
-			WamEventRingBuffer,
-			WamArrayRingBuffer,
-			WamParameter,
-			WamParameterInfo,
-			WamParameterInterpolator,
-			WamProcessor
-		};
+		await addFunctionModule(audioWorklet, getRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamEventRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameter, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInfo, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInterpolator, moduleId);
+		await addFunctionModule(audioWorklet, getWamProcessor, moduleId);
 	}
 
 	/**

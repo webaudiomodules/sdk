@@ -1,13 +1,13 @@
 /** @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo */
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').WamParameterInterpolator} IWamParameterInterpolator */
 /** @typedef {typeof import('./types').WamParameterInterpolator} WamParameterInterpolatorConstructor */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /**
- * @param {string} [uuid]
+ * @param {string} [moduleId]
  * @returns {WamParameterInterpolatorConstructor}
  */
-const getWamParameterInterpolator = (uuid) => {
+const getWamParameterInterpolator = (moduleId) => {
 	const samplesPerQuantum = 128;
 	const nullTableKey = '0_0';
 	
@@ -338,22 +338,15 @@ const getWamParameterInterpolator = (uuid) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
+	const { dependencies } = audioWorkletGlobalScope.webAudioModules;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (uuid) {
-			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamParameterInterpolator;
-		} else {
-			if (!audioWorkletGlobalScope.WamParameterInterpolator) audioWorkletGlobalScope.WamParameterInterpolator = WamParameterInterpolator;
+		if (moduleId) {
+			if (!dependencies[moduleId]) dependencies[moduleId] = {};
+			if (!dependencies[moduleId].WamParameterInterpolator) dependencies[moduleId].WamParameterInterpolator = WamParameterInterpolator;
 		}
 	}
 
 	return WamParameterInterpolator;
 };
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamParameterInterpolator) getWamParameterInterpolator();
-}
 
 export default getWamParameterInterpolator;

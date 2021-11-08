@@ -1,16 +1,4 @@
-
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
-
-declare global {
-    interface Crypto {
-        randomUUID?(): string;
-    }
-    var Crypto: {
-        prototype: Crypto;
-        new(): Crypto;
-    };
-    var crypto: Crypto;
-}
+import { WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -287,15 +275,7 @@ export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListe
 }
 export const WamNode: {
 	prototype: WamNode;
-	addModules(audioContext: BaseAudioContext, baseURL: string): Promise<{
-		RingBuffer: string;
-		WamEventRingBuffer: string;
-		WamArrayRingBuffer: string;
-		WamParameter: string;
-		WamParameterInfo: string;
-		WamParameterInterpolator: string;
-		WamProcessor: string;
-	}>;
+	addModules(audioContext: BaseAudioContext, baseURL: string, moduleId: string): Promise<void>;
 	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 
@@ -391,7 +371,7 @@ export const WebAudioModule: {
 	new <Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
-export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
+export interface WamSDK {
 	RingBuffer?: typeof RingBuffer;
 	WamEventRingBuffer?: typeof WamEventRingBuffer;
 	WamArrayRingBuffer?: typeof WamArrayRingBuffer;

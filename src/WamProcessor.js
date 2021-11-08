@@ -2,7 +2,6 @@
 /** @typedef {typeof import('@webaudiomodules/api').WamProcessor} WamProcessorConstructor */
 /** @typedef {import('@webaudiomodules/api').WamParameter} WamParameter */
 /** @typedef {import('@webaudiomodules/api').WamParameterInfoMap} WamParameterInfoMap */
-/** @typedef {import('@webaudiomodules/api').WamParameterInfo} WamParameterInfo */
 /** @typedef {import('@webaudiomodules/api').WamParameterDataMap} WamParameterDataMap */
 /** @typedef {import('@webaudiomodules/api').WamParameterData} WamParameterData */
 /** @typedef {import('@webaudiomodules/api').WamParameterMap} WamParameterMap */
@@ -10,19 +9,18 @@
 /** @typedef {import('@webaudiomodules/api').WamTransportData} WamTransportData */
 /** @typedef {import('@webaudiomodules/api').WamMidiData} WamMidiData */
 /** @typedef {import('@webaudiomodules/api').WamBinaryData} WamBinaryData */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {import('./types').PendingWamEvent} PendingWamEvent */
 /** @typedef {import('./types').ProcessingSlice} ProcessingSlice */
-/** @typedef {import('./types').WamParameterInterpolator} WamParameterInterpolator */
 /** @typedef {import('./types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
+/** @typedef {import('./types').WamSDK} WamSDK */
 
 /**
- * @param {string} [uuid]
- * @param {{ RingBuffer: string; WamEventRingBuffer: string; WamParameter: string; WamParameterInterpolator: string; }} [dependencies]
+ * @param {string} [moduleId]
  * @returns {WamProcessorConstructor}
  */
-const getWamProcessor = (uuid, dependencies) => {
+const getWamProcessor = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -30,14 +28,14 @@ const getWamProcessor = (uuid, dependencies) => {
 		AudioWorkletProcessor,
 		webAudioModules,
 	} = audioWorkletGlobalScope;
-	/** @type {AudioWorkletGlobalScope["RingBuffer"]} */
-	const RingBuffer = audioWorkletGlobalScope[dependencies?.RingBuffer || "RingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamEventRingBuffer"]} */
-	const WamEventRingBuffer = audioWorkletGlobalScope[dependencies?.WamEventRingBuffer || "WamEventRingBuffer"];
-	/** @type {AudioWorkletGlobalScope["WamParameter"]} */
-	const WamParameter = audioWorkletGlobalScope[dependencies?.WamParameter || "WamParameter"];
-	/** @type {AudioWorkletGlobalScope["WamParameterInterpolator"]} */
-	const WamParameterInterpolator = audioWorkletGlobalScope[dependencies?.WamParameterInterpolator || "WamParameterInterpolator"];
+	/** @type {WamSDK} */
+	const WamSDK = audioWorkletGlobalScope.webAudioModules[moduleId];
+	const {
+		RingBuffer,
+		WamEventRingBuffer,
+		WamParameter,
+		WamParameterInterpolator
+	} = WamSDK;
 		
 	/**
 	 * @implements {IWamProcessor}
@@ -559,21 +557,12 @@ const getWamProcessor = (uuid, dependencies) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (uuid) {
-			if (!audioWorkletGlobalScope[uuid]) audioWorkletGlobalScope[uuid] = WamProcessor;
-		} else {
-			if (!audioWorkletGlobalScope.WamProcessor) audioWorkletGlobalScope.WamProcessor = WamProcessor;
+		if (moduleId) {
+			if (!WamSDK.WamProcessor) WamSDK.WamProcessor = WamProcessor;
 		}
 	}
 
 	return WamProcessor;
 };
-
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamProcessor) getWamProcessor();
-}
 
 export default getWamProcessor;

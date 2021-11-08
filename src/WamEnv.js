@@ -11,10 +11,16 @@ const initializeWamEnv = (apiVersion) => {
 	 */
 	class WamEnv {
 		constructor() {
+			/** @type {Record<string, any>} */
+			this._dependencies = {};
 			/** @type {Map<IWamProcessor, Set<IWamProcessor>[]>} */
 			this._eventGraph = new Map();
 			/** @type {Record<string, IWamProcessor>} */
 			this._processors = {};
+		}
+
+		get dependencies() {
+			return this._dependencies;
 		}
 
 		get apiVersion() {

@@ -1076,7 +1076,7 @@ var getWamProcessor = (moduleId) => {
     AudioWorkletProcessor,
     webAudioModules
   } = audioWorkletGlobalScope2;
-  const WamSDK = audioWorkletGlobalScope2.webAudioModules[moduleId];
+  const WamSDK = audioWorkletGlobalScope2.webAudioModules.dependencies[moduleId];
   const {
     RingBuffer: RingBuffer2,
     WamEventRingBuffer: WamEventRingBuffer2,

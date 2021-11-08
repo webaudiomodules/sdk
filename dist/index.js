@@ -134,7 +134,7 @@ var WebAudioModule = class {
 var WebAudioModule_default = WebAudioModule;
 
 // src/RingBuffer.js
-var getRingBuffer = (uuid2) => {
+var getRingBuffer = (moduleId) => {
   class RingBuffer2 {
     static getStorageForCapacity(capacity, Type) {
       if (!Type.BYTES_PER_ELEMENT) {
@@ -233,27 +233,22 @@ var getRingBuffer = (uuid2) => {
       }
     }
   }
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = RingBuffer2;
-    } else {
-      if (!audioWorkletGlobalScope8.RingBuffer)
-        audioWorkletGlobalScope8.RingBuffer = RingBuffer2;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].RingBuffer)
+        dependencies[moduleId].RingBuffer = RingBuffer2;
     }
   }
   return RingBuffer2;
 };
-var audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope.RingBuffer)
-    getRingBuffer();
-}
 var RingBuffer_default = getRingBuffer;
 
 // src/WamArrayRingBuffer.js
-var getWamArrayRingBuffer = (uuid2) => {
+var getWamArrayRingBuffer = (moduleId) => {
   const _WamArrayRingBuffer = class {
     static getStorageForEventCapacity(RingBuffer2, arrayLength, arrayType, maxArrayCapacity = void 0) {
       if (maxArrayCapacity === void 0)
@@ -311,31 +306,30 @@ var getWamArrayRingBuffer = (uuid2) => {
   };
   let WamArrayRingBuffer = _WamArrayRingBuffer;
   __publicField(WamArrayRingBuffer, "DefaultArrayCapacity", 2);
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamArrayRingBuffer;
-    } else {
-      if (!audioWorkletGlobalScope8.WamArrayRingBuffer)
-        audioWorkletGlobalScope8.WamArrayRingBuffer = WamArrayRingBuffer;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].WamArrayRingBuffer)
+        dependencies[moduleId].WamArrayRingBuffer = WamArrayRingBuffer;
     }
   }
   return WamArrayRingBuffer;
 };
-var audioWorkletGlobalScope2 = globalThis;
-if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope2.WamArrayRingBuffer)
-    getWamArrayRingBuffer();
-}
 var WamArrayRingBuffer_default = getWamArrayRingBuffer;
 
 // src/WamEnv.js
 var initializeWamEnv = (apiVersion) => {
   class WamEnv {
     constructor() {
+      this._dependencies = {};
       this._eventGraph = new Map();
       this._processors = {};
+    }
+    get dependencies() {
+      return this._dependencies;
     }
     get apiVersion() {
       return apiVersion;
@@ -398,15 +392,22 @@ var initializeWamEnv = (apiVersion) => {
       });
     }
   }
-  const audioWorkletGlobalScope8 = globalThis;
-  if (!audioWorkletGlobalScope8.webAudioModules)
-    audioWorkletGlobalScope8.webAudioModules = new WamEnv();
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    if (!audioWorkletGlobalScope2.webAudioModules)
+      audioWorkletGlobalScope2.webAudioModules = new WamEnv();
+  }
   return WamEnv;
 };
+var audioWorkletGlobalScope = globalThis;
+if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+  if (!audioWorkletGlobalScope.webAudioModules)
+    initializeWamEnv("2.0.0");
+}
 var WamEnv_default = initializeWamEnv;
 
 // src/WamEventRingBuffer.js
-var getWamEventRingBuffer = (uuid2) => {
+var getWamEventRingBuffer = (moduleId) => {
   const _WamEventRingBuffer = class {
     static getStorageForEventCapacity(RingBuffer2, eventCapacity, maxBytesPerEvent = void 0) {
       if (maxBytesPerEvent === void 0)
@@ -730,291 +731,30 @@ var getWamEventRingBuffer = (uuid2) => {
   __publicField(WamEventRingBuffer2, "WamTransportEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamMidiEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamBinaryEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4);
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamEventRingBuffer2;
-    } else {
-      if (!audioWorkletGlobalScope8.WamEventRingBuffer)
-        audioWorkletGlobalScope8.WamEventRingBuffer = WamEventRingBuffer2;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].WamEventRingBuffer)
+        dependencies[moduleId].WamEventRingBuffer = WamEventRingBuffer2;
     }
   }
   return WamEventRingBuffer2;
 };
-var audioWorkletGlobalScope3 = globalThis;
-if (audioWorkletGlobalScope3.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope3.WamEventRingBuffer)
-    getWamEventRingBuffer();
-}
 var WamEventRingBuffer_default = getWamEventRingBuffer;
 
-// src/WamNode.js
-var RingBuffer = RingBuffer_default();
-var WamEventRingBuffer = WamEventRingBuffer_default();
-var WamNode = class extends AudioWorkletNode {
-  static async addModules(audioContext, baseURL) {
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/RingBuffer.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEventRingBuffer.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamArrayRingBuffer.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEnv.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameter.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInfo.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInterpolator.js`);
-    await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamProcessor.js`);
-  }
-  constructor(module, options) {
-    const { audioContext, moduleId, instanceId } = module;
-    options.processorOptions = __spreadValues({
-      moduleId,
-      instanceId
-    }, options.processorOptions);
-    super(audioContext, moduleId, options);
-    this.module = module;
-    this._supportedEventTypes = new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
-    this._messageId = 1;
-    this._pendingResponses = {};
-    this._pendingEvents = {};
-    this._useSab = false;
-    this._eventSabReady = false;
-    this._destroyed = false;
-    this.port.onmessage = this._onMessage.bind(this);
-  }
-  get moduleId() {
-    return this.module.moduleId;
-  }
-  get instanceId() {
-    return this.module.instanceId;
-  }
-  get processorId() {
-    return this.moduleId;
-  }
-  async getParameterInfo(...parameterIds) {
-    const request = "get/parameterInfo";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { parameterIds }
-      });
-    });
-  }
-  async getParameterValues(normalized, ...parameterIds) {
-    const request = "get/parameterValues";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { normalized, parameterIds }
-      });
-    });
-  }
-  async setParameterValues(parameterValues) {
-    const request = "set/parameterValues";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { parameterValues }
-      });
-    });
-  }
-  async getState() {
-    const request = "get/state";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({ id, request });
-    });
-  }
-  async setState(state) {
-    const request = "set/state";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { state }
-      });
-    });
-  }
-  async getCompensationDelay() {
-    const request = "get/compensationDelay";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({ id, request });
-    });
-  }
-  addEventListener(type, callback, options) {
-    if (this._supportedEventTypes.has(type))
-      super.addEventListener(type, callback, options);
-  }
-  removeEventListener(type, callback, options) {
-    if (this._supportedEventTypes.has(type))
-      super.removeEventListener(type, callback, options);
-  }
-  scheduleEvents(...events) {
-    let i = 0;
-    const numEvents = events.length;
-    if (this._eventSabReady) {
-      i = this._eventWriter.write(...events);
-    }
-    while (i < numEvents) {
-      const event = events[i];
-      const request = "add/event";
-      const id = this._generateMessageId();
-      let processed = false;
-      new Promise((resolve, reject) => {
-        this._pendingResponses[id] = resolve;
-        this._pendingEvents[id] = () => {
-          if (!processed)
-            reject();
-        };
-        this.port.postMessage({
-          id,
-          request,
-          content: { event }
-        });
-      }).then((resolved) => {
-        processed = true;
-        delete this._pendingEvents[id];
-        this._onEvent(event);
-      }).catch((rejected) => {
-        delete this._pendingResponses[id];
-      });
-      i++;
-    }
-  }
-  async clearEvents() {
-    const request = "remove/events";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      const ids = Object.keys(this._pendingEvents);
-      if (ids.length) {
-        this._pendingResponses[id] = resolve;
-        this.port.postMessage({ id, request });
-      }
-    }).then((clearedIds) => {
-      clearedIds.forEach((clearedId) => {
-        this._pendingEvents[clearedId]();
-        delete this._pendingEvents[clearedId];
-      });
-    });
-  }
-  connectEvents(to, output) {
-    var _a;
-    if (!((_a = to.module) == null ? void 0 : _a.isWebAudioModule))
-      return;
-    const request = "connect/events";
-    const id = this._generateMessageId();
-    new Promise((resolve, reject) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { wamInstanceId: to.instanceId, output }
-      });
-    });
-  }
-  disconnectEvents(to, output) {
-    var _a;
-    if (to && !((_a = to.module) == null ? void 0 : _a.isWebAudioModule))
-      return;
-    const request = "disconnect/events";
-    const id = this._generateMessageId();
-    new Promise((resolve, reject) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({
-        id,
-        request,
-        content: { wamInstanceId: to == null ? void 0 : to.instanceId, output }
-      });
-    });
-  }
-  destroy() {
-    if (this._audioToMainInterval)
-      clearInterval(this._audioToMainInterval);
-    this.port.postMessage({ destroy: true });
-    this.port.close();
-    this.disconnect();
-    this._destroyed = true;
-  }
-  _generateMessageId() {
-    return this._messageId++;
-  }
-  async _initialize() {
-    const request = "initialize/processor";
-    const id = this._generateMessageId();
-    return new Promise((resolve) => {
-      this._pendingResponses[id] = resolve;
-      this.port.postMessage({ id, request });
-    });
-  }
-  _onMessage(message) {
-    const { data } = message;
-    const { response, event, eventSab } = data;
-    if (response) {
-      const { id, content } = data;
-      const resolvePendingResponse = this._pendingResponses[id];
-      if (resolvePendingResponse) {
-        delete this._pendingResponses[id];
-        resolvePendingResponse(content);
-      }
-    } else if (eventSab) {
-      this._useSab = true;
-      const { eventCapacity, parameterIds } = eventSab;
-      if (this._eventSabReady) {
-        this._eventWriter.setParameterIds(parameterIds);
-        this._eventReader.setParameterIds(parameterIds);
-        return;
-      }
-      this._mainToAudioEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, eventCapacity);
-      this._audioToMainEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, eventCapacity);
-      this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioEventSab, parameterIds);
-      this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainEventSab, parameterIds);
-      const request = "initialize/eventSab";
-      const id = this._generateMessageId();
-      new Promise((resolve, reject) => {
-        this._pendingResponses[id] = resolve;
-        this.port.postMessage({
-          id,
-          request,
-          content: {
-            mainToAudioEventSab: this._mainToAudioEventSab,
-            audioToMainEventSab: this._audioToMainEventSab
-          }
-        });
-      }).then((resolved) => {
-        this._eventSabReady = true;
-        this._audioToMainInterval = setInterval(() => {
-          const events = this._eventReader.read();
-          events.forEach((e) => {
-            this._onEvent(e);
-          });
-        }, 100);
-      });
-    } else if (event)
-      this._onEvent(event);
-  }
-  _onEvent(event) {
-    const { type } = event;
-    this.dispatchEvent(new CustomEvent(type, {
-      bubbles: true,
-      detail: event
-    }));
-  }
+// src/addFunctionModule.js
+var addFunctionModule = (audioWorklet, processorFunction, ...injection) => {
+  const text = `(${processorFunction.toString()})(${injection.map((s) => JSON.stringify(s)).join(", ")});`;
+  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+  return audioWorklet.addModule(url);
 };
+var addFunctionModule_default = addFunctionModule;
 
 // src/WamParameter.js
-var getWamParameter = (uuid2) => {
+var getWamParameter = (moduleId) => {
   class WamParameter {
     constructor(info) {
       this.info = info;
@@ -1033,27 +773,22 @@ var getWamParameter = (uuid2) => {
       return this.info.normalize(this.value);
     }
   }
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamParameter;
-    } else {
-      if (!audioWorkletGlobalScope8.WamParameter)
-        audioWorkletGlobalScope8.WamParameter = WamParameter;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].WamParameter)
+        dependencies[moduleId].WamParameter = WamParameter;
     }
   }
   return WamParameter;
 };
-var audioWorkletGlobalScope4 = globalThis;
-if (audioWorkletGlobalScope4.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope4.WamParameter)
-    getWamParameter();
-}
 var WamParameter_default = getWamParameter;
 
 // src/WamParameterInfo.js
-var getWamParameterInfo = (uuid2) => {
+var getWamParameterInfo = (moduleId) => {
   const normExp = (x, e) => e === 0 ? x : x ** 1.5 ** -e;
   const denormExp = (x, e) => e === 0 ? x : x ** 1.5 ** e;
   const normalize = (x, min, max, e = 0) => min === 0 && max === 1 ? normExp(x, e) : normExp((x - min) / (max - min) || 0, e);
@@ -1137,27 +872,22 @@ var getWamParameterInfo = (uuid2) => {
       return `${value}`;
     }
   }
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamParameterInfo;
-    } else {
-      if (!audioWorkletGlobalScope8.WamParameterInfo)
-        audioWorkletGlobalScope8.WamParameterInfo = WamParameterInfo;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].WamParameterInfo)
+        dependencies[moduleId].WamParameterInfo = WamParameterInfo;
     }
   }
   return WamParameterInfo;
 };
-var audioWorkletGlobalScope5 = globalThis;
-if (audioWorkletGlobalScope5.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope5.WamParameterInfo)
-    getWamParameterInfo();
-}
 var WamParameterInfo_default = getWamParameterInfo;
 
 // src/WamParameterInterpolator.js
-var getWamParameterInterpolator = (uuid2) => {
+var getWamParameterInterpolator = (moduleId) => {
   const samplesPerQuantum = 128;
   const nullTableKey = "0_0";
   const _WamParameterInterpolator = class {
@@ -1325,49 +1055,47 @@ var getWamParameterInterpolator = (uuid2) => {
   let WamParameterInterpolator = _WamParameterInterpolator;
   __publicField(WamParameterInterpolator, "_tables");
   __publicField(WamParameterInterpolator, "_tableReferences");
-  const audioWorkletGlobalScope8 = globalThis;
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamParameterInterpolator;
-    } else {
-      if (!audioWorkletGlobalScope8.WamParameterInterpolator)
-        audioWorkletGlobalScope8.WamParameterInterpolator = WamParameterInterpolator;
+  const audioWorkletGlobalScope2 = globalThis;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    const { dependencies } = audioWorkletGlobalScope2.webAudioModules;
+    if (moduleId) {
+      if (!dependencies[moduleId])
+        dependencies[moduleId] = {};
+      if (!dependencies[moduleId].WamParameterInterpolator)
+        dependencies[moduleId].WamParameterInterpolator = WamParameterInterpolator;
     }
   }
   return WamParameterInterpolator;
 };
-var audioWorkletGlobalScope6 = globalThis;
-if (audioWorkletGlobalScope6.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope6.WamParameterInterpolator)
-    getWamParameterInterpolator();
-}
 var WamParameterInterpolator_default = getWamParameterInterpolator;
 
 // src/WamProcessor.js
-var getWamProcessor = (uuid2, dependencies) => {
-  const audioWorkletGlobalScope8 = globalThis;
+var getWamProcessor = (moduleId) => {
+  const audioWorkletGlobalScope2 = globalThis;
   const {
     AudioWorkletProcessor,
     webAudioModules
-  } = audioWorkletGlobalScope8;
-  const RingBuffer2 = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.RingBuffer) || "RingBuffer"];
-  const WamEventRingBuffer2 = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamEventRingBuffer) || "WamEventRingBuffer"];
-  const WamParameter = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamParameter) || "WamParameter"];
-  const WamParameterInterpolator = audioWorkletGlobalScope8[(dependencies == null ? void 0 : dependencies.WamParameterInterpolator) || "WamParameterInterpolator"];
+  } = audioWorkletGlobalScope2;
+  const WamSDK = audioWorkletGlobalScope2.webAudioModules[moduleId];
+  const {
+    RingBuffer: RingBuffer2,
+    WamEventRingBuffer: WamEventRingBuffer2,
+    WamParameter,
+    WamParameterInterpolator
+  } = WamSDK;
   class WamProcessor extends AudioWorkletProcessor {
     constructor(options) {
       super(options);
       const {
-        moduleId,
+        moduleId: moduleId2,
         instanceId,
         useSab
       } = options.processorOptions;
-      if (!moduleId)
+      if (!moduleId2)
         throw Error("must provide moduleId argument in processorOptions!");
       if (!instanceId)
         throw Error("must provide instanceId argument in processorOptions!");
-      this.moduleId = moduleId;
+      this.moduleId = moduleId2;
       this.instanceId = instanceId;
       this._samplesPerQuantum = 128;
       this._compensationDelay = 0;
@@ -1650,7 +1378,7 @@ var getWamProcessor = (uuid2, dependencies) => {
     }
     _getProcessingSlices() {
       const response = "add/event";
-      const { currentTime, sampleRate } = audioWorkletGlobalScope8;
+      const { currentTime, sampleRate } = audioWorkletGlobalScope2;
       const eventsBySampleIndex = {};
       let i = 0;
       while (i < this._eventQueue.length) {
@@ -1719,42 +1447,279 @@ var getWamProcessor = (uuid2, dependencies) => {
       console.error("_process not implemented!");
     }
   }
-  if (audioWorkletGlobalScope8.AudioWorkletProcessor) {
-    if (uuid2) {
-      if (!audioWorkletGlobalScope8[uuid2])
-        audioWorkletGlobalScope8[uuid2] = WamProcessor;
-    } else {
-      if (!audioWorkletGlobalScope8.WamProcessor)
-        audioWorkletGlobalScope8.WamProcessor = WamProcessor;
+  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+    if (moduleId) {
+      if (!WamSDK.WamProcessor)
+        WamSDK.WamProcessor = WamProcessor;
     }
   }
   return WamProcessor;
 };
-var audioWorkletGlobalScope7 = globalThis;
-if (audioWorkletGlobalScope7.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope7.WamProcessor)
-    getWamProcessor();
-}
 var WamProcessor_default = getWamProcessor;
 
-// src/addFunctionModule.js
-var addFunctionModule = (audioWorklet, processorFunction, ...injection) => {
-  const text = `(${processorFunction.toString()})(${injection.map((s) => JSON.stringify(s)).join(", ")});`;
-  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
-  return audioWorklet.addModule(url);
+// src/WamNode.js
+var RingBuffer = RingBuffer_default();
+var WamEventRingBuffer = WamEventRingBuffer_default();
+var WamNode = class extends AudioWorkletNode {
+  static async addModules(audioContext, baseURL, moduleId) {
+    const { audioWorklet } = audioContext;
+    await addFunctionModule_default(audioWorklet, RingBuffer_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamEventRingBuffer_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamArrayRingBuffer_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameter_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameterInfo_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameterInterpolator_default, moduleId);
+    await addFunctionModule_default(audioWorklet, WamProcessor_default, moduleId);
+  }
+  constructor(module, options) {
+    const { audioContext, moduleId, instanceId } = module;
+    options.processorOptions = __spreadValues({
+      moduleId,
+      instanceId
+    }, options.processorOptions);
+    super(audioContext, moduleId, options);
+    this.module = module;
+    this._supportedEventTypes = new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
+    this._messageId = 1;
+    this._pendingResponses = {};
+    this._pendingEvents = {};
+    this._useSab = false;
+    this._eventSabReady = false;
+    this._destroyed = false;
+    this.port.onmessage = this._onMessage.bind(this);
+  }
+  get moduleId() {
+    return this.module.moduleId;
+  }
+  get instanceId() {
+    return this.module.instanceId;
+  }
+  get processorId() {
+    return this.moduleId;
+  }
+  async getParameterInfo(...parameterIds) {
+    const request = "get/parameterInfo";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { parameterIds }
+      });
+    });
+  }
+  async getParameterValues(normalized, ...parameterIds) {
+    const request = "get/parameterValues";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { normalized, parameterIds }
+      });
+    });
+  }
+  async setParameterValues(parameterValues) {
+    const request = "set/parameterValues";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { parameterValues }
+      });
+    });
+  }
+  async getState() {
+    const request = "get/state";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({ id, request });
+    });
+  }
+  async setState(state) {
+    const request = "set/state";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { state }
+      });
+    });
+  }
+  async getCompensationDelay() {
+    const request = "get/compensationDelay";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({ id, request });
+    });
+  }
+  addEventListener(type, callback, options) {
+    if (this._supportedEventTypes.has(type))
+      super.addEventListener(type, callback, options);
+  }
+  removeEventListener(type, callback, options) {
+    if (this._supportedEventTypes.has(type))
+      super.removeEventListener(type, callback, options);
+  }
+  scheduleEvents(...events) {
+    let i = 0;
+    const numEvents = events.length;
+    if (this._eventSabReady) {
+      i = this._eventWriter.write(...events);
+    }
+    while (i < numEvents) {
+      const event = events[i];
+      const request = "add/event";
+      const id = this._generateMessageId();
+      let processed = false;
+      new Promise((resolve, reject) => {
+        this._pendingResponses[id] = resolve;
+        this._pendingEvents[id] = () => {
+          if (!processed)
+            reject();
+        };
+        this.port.postMessage({
+          id,
+          request,
+          content: { event }
+        });
+      }).then((resolved) => {
+        processed = true;
+        delete this._pendingEvents[id];
+        this._onEvent(event);
+      }).catch((rejected) => {
+        delete this._pendingResponses[id];
+      });
+      i++;
+    }
+  }
+  async clearEvents() {
+    const request = "remove/events";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      const ids = Object.keys(this._pendingEvents);
+      if (ids.length) {
+        this._pendingResponses[id] = resolve;
+        this.port.postMessage({ id, request });
+      }
+    }).then((clearedIds) => {
+      clearedIds.forEach((clearedId) => {
+        this._pendingEvents[clearedId]();
+        delete this._pendingEvents[clearedId];
+      });
+    });
+  }
+  connectEvents(to, output) {
+    var _a;
+    if (!((_a = to.module) == null ? void 0 : _a.isWebAudioModule))
+      return;
+    const request = "connect/events";
+    const id = this._generateMessageId();
+    new Promise((resolve, reject) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { wamInstanceId: to.instanceId, output }
+      });
+    });
+  }
+  disconnectEvents(to, output) {
+    var _a;
+    if (to && !((_a = to.module) == null ? void 0 : _a.isWebAudioModule))
+      return;
+    const request = "disconnect/events";
+    const id = this._generateMessageId();
+    new Promise((resolve, reject) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({
+        id,
+        request,
+        content: { wamInstanceId: to == null ? void 0 : to.instanceId, output }
+      });
+    });
+  }
+  destroy() {
+    if (this._audioToMainInterval)
+      clearInterval(this._audioToMainInterval);
+    this.port.postMessage({ destroy: true });
+    this.port.close();
+    this.disconnect();
+    this._destroyed = true;
+  }
+  _generateMessageId() {
+    return this._messageId++;
+  }
+  async _initialize() {
+    const request = "initialize/processor";
+    const id = this._generateMessageId();
+    return new Promise((resolve) => {
+      this._pendingResponses[id] = resolve;
+      this.port.postMessage({ id, request });
+    });
+  }
+  _onMessage(message) {
+    const { data } = message;
+    const { response, event, eventSab } = data;
+    if (response) {
+      const { id, content } = data;
+      const resolvePendingResponse = this._pendingResponses[id];
+      if (resolvePendingResponse) {
+        delete this._pendingResponses[id];
+        resolvePendingResponse(content);
+      }
+    } else if (eventSab) {
+      this._useSab = true;
+      const { eventCapacity, parameterIds } = eventSab;
+      if (this._eventSabReady) {
+        this._eventWriter.setParameterIds(parameterIds);
+        this._eventReader.setParameterIds(parameterIds);
+        return;
+      }
+      this._mainToAudioEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, eventCapacity);
+      this._audioToMainEventSab = WamEventRingBuffer.getStorageForEventCapacity(RingBuffer, eventCapacity);
+      this._eventWriter = new WamEventRingBuffer(RingBuffer, this._mainToAudioEventSab, parameterIds);
+      this._eventReader = new WamEventRingBuffer(RingBuffer, this._audioToMainEventSab, parameterIds);
+      const request = "initialize/eventSab";
+      const id = this._generateMessageId();
+      new Promise((resolve, reject) => {
+        this._pendingResponses[id] = resolve;
+        this.port.postMessage({
+          id,
+          request,
+          content: {
+            mainToAudioEventSab: this._mainToAudioEventSab,
+            audioToMainEventSab: this._audioToMainEventSab
+          }
+        });
+      }).then((resolved) => {
+        this._eventSabReady = true;
+        this._audioToMainInterval = setInterval(() => {
+          const events = this._eventReader.read();
+          events.forEach((e) => {
+            this._onEvent(e);
+          });
+        }, 100);
+      });
+    } else if (event)
+      this._onEvent(event);
+  }
+  _onEvent(event) {
+    const { type } = event;
+    this.dispatchEvent(new CustomEvent(type, {
+      bubbles: true,
+      detail: event
+    }));
+  }
 };
-var addFunctionModule_default = addFunctionModule;
-
-// src/uuid.js
-var uuid = () => {
-  var _a;
-  return ((_a = globalThis == null ? void 0 : globalThis.crypto) == null ? void 0 : _a.randomUUID) ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0;
-    const v = c === "x" ? r : r & 3 | 8;
-    return v.toString(16);
-  });
-};
-var uuid_default = uuid;
 export {
   WamNode,
   WebAudioModule_default as WebAudioModule,
@@ -1766,7 +1731,6 @@ export {
   WamParameterInfo_default as getWamParameterInfo,
   WamParameterInterpolator_default as getWamParameterInterpolator,
   WamProcessor_default as getWamProcessor,
-  WamEnv_default as initializeWamEnv,
-  uuid_default as uuid
+  WamEnv_default as initializeWamEnv
 };
 //# sourceMappingURL=index.js.map

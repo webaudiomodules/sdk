@@ -131,8 +131,8 @@ const getWamArrayRingBuffer = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	const { dependencies } = audioWorkletGlobalScope.webAudioModules;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		const { dependencies } = audioWorkletGlobalScope.webAudioModules;
 		if (moduleId) {
 			if (!dependencies[moduleId]) dependencies[moduleId] = {};
 			if (!dependencies[moduleId].WamArrayRingBuffer) dependencies[moduleId].WamArrayRingBuffer = WamArrayRingBuffer;

@@ -1448,10 +1448,8 @@ var getWamProcessor = (moduleId) => {
     }
   }
   if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    if (moduleId) {
-      if (!WamSDK.WamProcessor)
-        WamSDK.WamProcessor = WamProcessor;
-    }
+    if (!WamSDK.WamProcessor)
+      WamSDK.WamProcessor = WamProcessor;
   }
   return WamProcessor;
 };
@@ -1461,7 +1459,7 @@ var WamProcessor_default = getWamProcessor;
 var RingBuffer = RingBuffer_default();
 var WamEventRingBuffer = WamEventRingBuffer_default();
 var WamNode = class extends AudioWorkletNode {
-  static async addModules(audioContext, baseURL, moduleId) {
+  static async addModules(audioContext, moduleId) {
     const { audioWorklet } = audioContext;
     await addFunctionModule_default(audioWorklet, RingBuffer_default, moduleId);
     await addFunctionModule_default(audioWorklet, WamEventRingBuffer_default, moduleId);

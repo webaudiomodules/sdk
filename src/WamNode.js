@@ -25,10 +25,9 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} baseURL
 	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL, moduleId) {
+	static async addModules(audioContext, moduleId) {
 		const { audioWorklet } = audioContext;
 		await addFunctionModule(audioWorklet, getRingBuffer, moduleId);
 		await addFunctionModule(audioWorklet, getWamEventRingBuffer, moduleId);

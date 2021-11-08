@@ -557,9 +557,7 @@ const getWamProcessor = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (moduleId) {
-			if (!WamSDK.WamProcessor) WamSDK.WamProcessor = WamProcessor;
-		}
+		if (!WamSDK.WamProcessor) WamSDK.WamProcessor = WamProcessor;
 	}
 
 	return WamProcessor;

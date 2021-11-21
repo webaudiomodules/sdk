@@ -14,7 +14,7 @@
 /** @typedef {import('./types').ProcessingSlice} ProcessingSlice */
 /** @typedef {import('./types').WamParameterInterpolatorMap} WamParameterInterpolatorMap */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
-/** @typedef {import('./types').WamSDK} WamSDK */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
  * @param {string} [moduleId]
@@ -28,14 +28,15 @@ const getWamProcessor = (moduleId) => {
 		AudioWorkletProcessor,
 		webAudioModules,
 	} = audioWorkletGlobalScope;
-	/** @type {WamSDK} */
-	const WamSDK = audioWorkletGlobalScope.webAudioModules.dependencies[moduleId];
+	
+	/** @type {WamSDKBaseModuleScope} */
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	const {
 		RingBuffer,
 		WamEventRingBuffer,
 		WamParameter,
 		WamParameterInterpolator
-	} = WamSDK;
+	} = ModuleScope;
 		
 	/**
 	 * @implements {IWamProcessor}
@@ -98,22 +99,6 @@ const getWamProcessor = (moduleId) => {
 		}
 
 		/**
-		 * List of WAMs connected to this processor via event streams.
-		 * @readonly
-		 * @type {Set<WamProcessor>}
-		 */
-		get downstream() {
-			const wams = new Set();
-			const { eventGraph } = webAudioModules;
-			if (!eventGraph.has(this)) return wams;
-			const outputMap = eventGraph.get(this);
-			outputMap.forEach((set) => {
-				if (set) set.forEach((wam) => wams.add(wam));
-			});
-			return wams;
-		}
-
-		/**
 		 * Compensation delay hint in seconds.
 		 * @returns {number}
 		 */
@@ -138,12 +123,7 @@ const getWamProcessor = (moduleId) => {
 		 * @param {WamEvent[]} events
 		 */
 		emitEvents(...events) {
-			const { eventGraph } = webAudioModules;
-			if (!eventGraph.has(this)) return;
-			const downstream = eventGraph.get(this);
-			downstream.forEach((set) => {
-				if (set) set.forEach((wam) => wam.scheduleEvents(...events));
-			});
+			webAudioModules.emitEvents(this, ...events);
 		}
 
 		/**
@@ -461,9 +441,7 @@ const getWamProcessor = (moduleId) => {
 		 * @param {number} [output]
 		 */
 		_connectEvents(wamInstanceId, output) {
-			const wam = webAudioModules.processors[wamInstanceId];
-			if (!wam) return;
-			webAudioModules.connectEvents(this, wam, output);
+			webAudioModules.connectEvents(this.instanceId, wamInstanceId, output);
 		}
 
 		/**
@@ -472,12 +450,10 @@ const getWamProcessor = (moduleId) => {
 		 */
 		_disconnectEvents(wamInstanceId, output) {
 			if (typeof wamInstanceId === 'undefined') {
-				webAudioModules.disconnectEvents(this);
+				webAudioModules.disconnectEvents(this.instanceId);
 				return;
 			}
-			const wam = webAudioModules.processors[wamInstanceId];
-			if (!wam) return;
-			webAudioModules.disconnectEvents(this, wam, output);
+			webAudioModules.disconnectEvents(this.instanceId, wamInstanceId, output);
 		}
 
 		/**
@@ -557,7 +533,7 @@ const getWamProcessor = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!WamSDK.WamProcessor) WamSDK.WamProcessor = WamProcessor;
+		if (!ModuleScope.WamProcessor) ModuleScope.WamProcessor = WamProcessor;
 	}
 
 	return WamProcessor;

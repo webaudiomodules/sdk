@@ -257,11 +257,10 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {WamNode} to the destination WAM for the event stream
+	 * @param {string} toId the instanceId of the destination WAM for the event stream
 	 * @param {number} [output] the event output stream of the source WAM
 	 */
-	connectEvents(to, output) {
-		if (!to.module?.isWebAudioModule) return;
+	connectEvents(toId, output) {
 		const request = 'connect/events';
 		const id = this._generateMessageId();
 		new Promise((resolve, reject) => {
@@ -269,17 +268,16 @@ export default class WamNode extends AudioWorkletNode {
 			this.port.postMessage({
 				id,
 				request,
-				content: { wamInstanceId: to.instanceId, output },
+				content: { wamInstanceId: toId, output },
 			});
 		});
 	}
 
 	/**
-	 * @param {WamNode} [to] the destination WAM for the event stream
+	 * @param {string} [toId] the instanceId of the destination WAM for the event stream
 	 * @param {number} [output]
 	 */
-	disconnectEvents(to, output) {
-		if (to && !to.module?.isWebAudioModule) return;
+	disconnectEvents(toId, output) {
 		const request = 'disconnect/events';
 		const id = this._generateMessageId();
 		new Promise((resolve, reject) => {
@@ -287,7 +285,7 @@ export default class WamNode extends AudioWorkletNode {
 			this.port.postMessage({
 				id,
 				request,
-				content: { wamInstanceId: to?.instanceId, output },
+				content: { wamInstanceId: toId, output },
 			});
 		});
 	}

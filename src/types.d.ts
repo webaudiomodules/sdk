@@ -302,8 +302,6 @@ export interface WamParameterInterpolatorMap {
 }
 
 export interface WamProcessor extends IWamProcessor {
-	readonly downstream: Set<IWamProcessor>
-
 	/** Note: methods and members starting with underscore should not be accessed by host. */
 	_generateWamParameterInfo(): WamParameterInfoMap;
 	_initialize(): void;
@@ -371,7 +369,7 @@ export const WebAudioModule: {
 	new <Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
-export interface WamSDK {
+export interface WamSDKBaseModuleScope {
 	RingBuffer?: typeof RingBuffer;
 	WamEventRingBuffer?: typeof WamEventRingBuffer;
 	WamArrayRingBuffer?: typeof WamArrayRingBuffer;

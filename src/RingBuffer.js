@@ -3,12 +3,20 @@
 /** @typedef {import('./types').RingBuffer} IRingBuffer */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
  * @param {string} [moduleId]
  * @returns {RingBufferConstructor}
  */
 const getRingBuffer = (moduleId) => {
+	/** @type {AudioWorkletGlobalScope} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+	
+	/** @type {WamSDKBaseModuleScope} */
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
 	/**
 	 * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
 	 * The producer and the consumer can be on separate threads, but cannot change roles,
@@ -238,15 +246,8 @@ const getRingBuffer = (moduleId) => {
 		}
 	}
 
-	/** @type {AudioWorkletGlobalScope} */
-	// @ts-ignore
-	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		const { dependencies } = audioWorkletGlobalScope.webAudioModules;
-		if (moduleId) {
-			if (!dependencies[moduleId]) dependencies[moduleId] = {};
-			if (!dependencies[moduleId].RingBuffer) dependencies[moduleId].RingBuffer = RingBuffer;
-		}
+		if (!ModuleScope.RingBuffer) ModuleScope.RingBuffer = RingBuffer;
 	}
 
 	return RingBuffer;

@@ -5,12 +5,20 @@
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
 /** @typedef {import('./types').WamArrayRingBuffer} IWamArrayRingBuffer */
 /** @typedef {typeof import('./types').WamArrayRingBuffer} WamArrayRingBufferConstructor */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
  * @param {string} [moduleId]
  * @returns {WamArrayRingBufferConstructor}
  */
 const getWamArrayRingBuffer = (moduleId) => {
+	/** @type {AudioWorkletGlobalScope} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+	
+	/** @type {WamSDKBaseModuleScope} */
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
 	/**
 	 * @implements {IWamArrayRingBuffer}
 	 */
@@ -128,15 +136,8 @@ const getWamArrayRingBuffer = (moduleId) => {
 
 	}
 
-	/** @type {AudioWorkletGlobalScope} */
-	// @ts-ignore
-	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		const { dependencies } = audioWorkletGlobalScope.webAudioModules;
-		if (moduleId) {
-			if (!dependencies[moduleId]) dependencies[moduleId] = {};
-			if (!dependencies[moduleId].WamArrayRingBuffer) dependencies[moduleId].WamArrayRingBuffer = WamArrayRingBuffer;
-		}
+		if (!ModuleScope.WamArrayRingBuffer) ModuleScope.WamArrayRingBuffer = WamArrayRingBuffer;
 	}
 
 	return WamArrayRingBuffer;

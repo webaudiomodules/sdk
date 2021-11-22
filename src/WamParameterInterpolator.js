@@ -12,9 +12,6 @@ const getWamParameterInterpolator = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	
-	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 	const samplesPerQuantum = 128;
 	const nullTableKey = '0_0';
@@ -344,6 +341,9 @@ const getWamParameterInterpolator = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+	
 		if (!ModuleScope.WamParameterInterpolator) ModuleScope.WamParameterInterpolator = WamParameterInterpolator;
 	}
 

@@ -12,9 +12,6 @@ const getWamParameter = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	
-	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 	/** @implements {IWamParameter} */
 	class WamParameter {
@@ -60,6 +57,9 @@ const getWamParameter = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+	
 		if (!ModuleScope.WamParameter) ModuleScope.WamParameter = WamParameter;
 	}
 

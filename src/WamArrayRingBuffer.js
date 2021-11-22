@@ -15,9 +15,6 @@ const getWamArrayRingBuffer = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	
-	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 	/**
 	 * @implements {IWamArrayRingBuffer}
@@ -137,6 +134,9 @@ const getWamArrayRingBuffer = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
 		if (!ModuleScope.WamArrayRingBuffer) ModuleScope.WamArrayRingBuffer = WamArrayRingBuffer;
 	}
 

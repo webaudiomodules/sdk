@@ -13,9 +13,6 @@ const getRingBuffer = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
-	
-	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 	/**
 	 * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
@@ -247,6 +244,9 @@ const getRingBuffer = (moduleId) => {
 	}
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
 		if (!ModuleScope.RingBuffer) ModuleScope.RingBuffer = RingBuffer;
 	}
 

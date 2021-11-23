@@ -37,6 +37,7 @@ const initializeWamEnv = (apiVersion) => {
 		 * @returns {Record<string, any>}
 		 */
 		getModuleScope(moduleId) {
+			if (!this._dependencies[moduleId]) this._dependencies[moduleId] = {};
 			return this._dependencies[moduleId];
 		}
 

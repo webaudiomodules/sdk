@@ -327,6 +327,8 @@ var initializeWamEnv = (apiVersion) => {
       this._processors[wam.instanceId] = wam;
     }
     getModuleScope(moduleId) {
+      if (!this._dependencies[moduleId])
+        this._dependencies[moduleId] = {};
       return this._dependencies[moduleId];
     }
     connectEvents(fromId, toId, output = 0) {

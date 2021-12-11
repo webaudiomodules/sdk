@@ -24,10 +24,11 @@ var WebAudioModule = class {
   static get isWebAudioModuleConstructor() {
     return true;
   }
-  static createInstance(audioContext, initialState) {
-    return new this(audioContext).initialize(initialState);
+  static createInstance(groupId, audioContext, initialState) {
+    return new this(groupId, audioContext).initialize(initialState);
   }
-  constructor(audioContext) {
+  constructor(groupId, audioContext) {
+    this._groupId = groupId;
     this._audioContext = audioContext;
     this._initialized = false;
     this._audioNode = void 0;
@@ -60,6 +61,9 @@ var WebAudioModule = class {
   }
   get isWebAudioModule() {
     return true;
+  }
+  get groupId() {
+    return this._groupId;
   }
   get moduleId() {
     return this.vendor + this.name;
@@ -134,8 +138,8 @@ var WebAudioModule = class {
 var WebAudioModule_default = WebAudioModule;
 
 // src/RingBuffer.js
-var getRingBuffer = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getRingBuffer = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   class RingBuffer2 {
     static getStorageForCapacity(capacity, Type) {
       if (!Type.BYTES_PER_ELEMENT) {
@@ -234,8 +238,8 @@ var getRingBuffer = (moduleId) => {
       }
     }
   }
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.RingBuffer)
       ModuleScope.RingBuffer = RingBuffer2;
   }
@@ -244,8 +248,8 @@ var getRingBuffer = (moduleId) => {
 var RingBuffer_default = getRingBuffer;
 
 // src/WamArrayRingBuffer.js
-var getWamArrayRingBuffer = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamArrayRingBuffer = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   const _WamArrayRingBuffer = class {
     static getStorageForEventCapacity(RingBuffer2, arrayLength, arrayType, maxArrayCapacity = void 0) {
       if (maxArrayCapacity === void 0)
@@ -303,8 +307,8 @@ var getWamArrayRingBuffer = (moduleId) => {
   };
   let WamArrayRingBuffer = _WamArrayRingBuffer;
   __publicField(WamArrayRingBuffer, "DefaultArrayCapacity", 2);
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.WamArrayRingBuffer)
       ModuleScope.WamArrayRingBuffer = WamArrayRingBuffer;
   }
@@ -314,46 +318,81 @@ var WamArrayRingBuffer_default = getWamArrayRingBuffer;
 
 // src/WamEnv.js
 var initializeWamEnv = (apiVersion) => {
+  const audioWorkletGlobalScope = globalThis;
+  if (audioWorkletGlobalScope.AudioWorkletProcessor && audioWorkletGlobalScope.webAudioModules)
+    return;
+  const groups = /* @__PURE__ */ new Map();
   class WamEnv {
     constructor() {
-      this._dependencies = {};
-      this._eventGraph = new Map();
-      this._processors = {};
     }
     get apiVersion() {
       return apiVersion;
     }
-    create(wam) {
-      this._processors[wam.instanceId] = wam;
+    getGroup(groupId, groupKey) {
+      const group = groups.get(groupId);
+      if (group.validate(groupKey))
+        return group;
+      else
+        throw "Invalid key";
     }
-    getModuleScope(moduleId) {
-      if (!this._dependencies[moduleId])
-        this._dependencies[moduleId] = {};
-      return this._dependencies[moduleId];
+    addGroup(group) {
+      if (!groups.has(group.groupId))
+        groups.set(group.groupId, group);
     }
-    connectEvents(fromId, toId, output = 0) {
-      const from = this._processors[fromId];
-      const to = this._processors[toId];
+    removeGroup(group) {
+      groups.delete(group.groupId);
+    }
+    addWam(wam) {
+      const group = groups.get(wam.groupId);
+      group.getProcessors().set(wam.instanceId, wam);
+    }
+    removeWam(wam) {
+      const group = groups.get(wam.groupId);
+      const eventGraph = group.getEventGraph();
+      const processors = group.getProcessors();
+      if (eventGraph.has(wam))
+        eventGraph.delete(wam);
+      eventGraph.forEach((outputMap) => {
+        outputMap.forEach((set) => {
+          if (set && set.has(wam))
+            set.delete(wam);
+        });
+      });
+      processors.delete(wam.instanceId);
+    }
+    getModuleScope(groupId, moduleId) {
+      const group = groups.get(groupId);
+      return group.getModuleScope(moduleId);
+    }
+    connectEvents(groupId, fromId, toId, output = 0) {
+      const group = groups.get(groupId);
+      const eventGraph = group.getEventGraph();
+      const processors = group.getProcessors();
+      const from = processors.get(fromId);
+      const to = processors.get(toId);
       let outputMap;
-      if (this._eventGraph.has(from)) {
-        outputMap = this._eventGraph.get(from);
+      if (eventGraph.has(from)) {
+        outputMap = eventGraph.get(from);
       } else {
         outputMap = [];
-        this._eventGraph.set(from, outputMap);
+        eventGraph.set(from, outputMap);
       }
       if (outputMap[output]) {
         outputMap[output].add(to);
       } else {
-        const set = new Set();
+        const set = /* @__PURE__ */ new Set();
         set.add(to);
         outputMap[output] = set;
       }
     }
-    disconnectEvents(fromId, toId, output) {
-      const from = this._processors[fromId];
-      if (!this._eventGraph.has(from))
+    disconnectEvents(groupId, fromId, toId, output) {
+      const group = groups.get(groupId);
+      const eventGraph = group.getEventGraph();
+      const processors = group.getProcessors();
+      const from = processors.get(fromId);
+      if (!eventGraph.has(from))
         return;
-      const outputMap = this._eventGraph.get(from);
+      const outputMap = eventGraph.get(from);
       if (typeof toId === "undefined") {
         outputMap.forEach((set) => {
           if (set)
@@ -361,7 +400,7 @@ var initializeWamEnv = (apiVersion) => {
         });
         return;
       }
-      const to = this._processors[toId];
+      const to = processors.get(toId);
       if (typeof output === "undefined") {
         outputMap.forEach((set) => {
           if (set)
@@ -374,42 +413,27 @@ var initializeWamEnv = (apiVersion) => {
       outputMap[output].delete(to);
     }
     emitEvents(from, ...events) {
-      if (!this._eventGraph.has(from))
+      const group = groups.get(from.groupId);
+      const eventGraph = group.getEventGraph();
+      if (!eventGraph.has(from))
         return;
-      const downstream = this._eventGraph.get(from);
+      const downstream = eventGraph.get(from);
       downstream.forEach((set) => {
         if (set)
           set.forEach((wam) => wam.scheduleEvents(...events));
       });
     }
-    destroy(wam) {
-      if (this._eventGraph.has(wam))
-        this._eventGraph.delete(wam);
-      this._eventGraph.forEach((outputMap) => {
-        outputMap.forEach((set) => {
-          if (set && set.has(wam))
-            set.delete(wam);
-        });
-      });
-    }
   }
-  const audioWorkletGlobalScope2 = globalThis;
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    if (!audioWorkletGlobalScope2.webAudioModules)
-      audioWorkletGlobalScope2.webAudioModules = new WamEnv();
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    if (!audioWorkletGlobalScope.webAudioModules)
+      audioWorkletGlobalScope.webAudioModules = new WamEnv();
   }
-  return WamEnv;
 };
-var audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-  if (!audioWorkletGlobalScope.webAudioModules)
-    initializeWamEnv("2.0.0");
-}
 var WamEnv_default = initializeWamEnv;
 
 // src/WamEventRingBuffer.js
-var getWamEventRingBuffer = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamEventRingBuffer = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   const _WamEventRingBuffer = class {
     static getStorageForEventCapacity(RingBuffer2, eventCapacity, maxBytesPerEvent = void 0) {
       if (maxBytesPerEvent === void 0)
@@ -733,8 +757,8 @@ var getWamEventRingBuffer = (moduleId) => {
   __publicField(WamEventRingBuffer2, "WamTransportEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamMidiEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 1 + 1 + 1);
   __publicField(WamEventRingBuffer2, "WamBinaryEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4);
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.WamEventRingBuffer)
       ModuleScope.WamEventRingBuffer = WamEventRingBuffer2;
   }
@@ -751,8 +775,8 @@ var addFunctionModule = (audioWorklet, processorFunction, ...injection) => {
 var addFunctionModule_default = addFunctionModule;
 
 // src/WamParameter.js
-var getWamParameter = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamParameter = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   class WamParameter {
     constructor(info) {
       this.info = info;
@@ -771,8 +795,8 @@ var getWamParameter = (moduleId) => {
       return this.info.normalize(this.value);
     }
   }
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.WamParameter)
       ModuleScope.WamParameter = WamParameter;
   }
@@ -781,8 +805,8 @@ var getWamParameter = (moduleId) => {
 var WamParameter_default = getWamParameter;
 
 // src/WamParameterInfo.js
-var getWamParameterInfo = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamParameterInfo = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   const normExp = (x, e) => e === 0 ? x : x ** 1.5 ** -e;
   const denormExp = (x, e) => e === 0 ? x : x ** 1.5 ** e;
   const normalize = (x, min, max, e = 0) => min === 0 && max === 1 ? normExp(x, e) : normExp((x - min) / (max - min) || 0, e);
@@ -866,8 +890,8 @@ var getWamParameterInfo = (moduleId) => {
       return `${value}`;
     }
   }
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.WamParameterInfo)
       ModuleScope.WamParameterInfo = WamParameterInfo;
   }
@@ -876,8 +900,8 @@ var getWamParameterInfo = (moduleId) => {
 var WamParameterInfo_default = getWamParameterInfo;
 
 // src/WamParameterInterpolator.js
-var getWamParameterInterpolator = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamParameterInterpolator = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   const samplesPerQuantum = 128;
   const nullTableKey = "0_0";
   const _WamParameterInterpolator = class {
@@ -1045,8 +1069,8 @@ var getWamParameterInterpolator = (moduleId) => {
   let WamParameterInterpolator = _WamParameterInterpolator;
   __publicField(WamParameterInterpolator, "_tables");
   __publicField(WamParameterInterpolator, "_tableReferences");
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
-    const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
+    const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
     if (!ModuleScope.WamParameterInterpolator)
       ModuleScope.WamParameterInterpolator = WamParameterInterpolator;
   }
@@ -1055,13 +1079,13 @@ var getWamParameterInterpolator = (moduleId) => {
 var WamParameterInterpolator_default = getWamParameterInterpolator;
 
 // src/WamProcessor.js
-var getWamProcessor = (moduleId) => {
-  const audioWorkletGlobalScope2 = globalThis;
+var getWamProcessor = (groupId, moduleId) => {
+  const audioWorkletGlobalScope = globalThis;
   const {
     AudioWorkletProcessor,
     webAudioModules
-  } = audioWorkletGlobalScope2;
-  const ModuleScope = audioWorkletGlobalScope2.webAudioModules.getModuleScope(moduleId);
+  } = audioWorkletGlobalScope;
+  const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
   const {
     RingBuffer: RingBuffer2,
     WamEventRingBuffer: WamEventRingBuffer2,
@@ -1080,6 +1104,7 @@ var getWamProcessor = (moduleId) => {
         throw Error("must provide moduleId argument in processorOptions!");
       if (!instanceId)
         throw Error("must provide instanceId argument in processorOptions!");
+      this.groupId = groupId;
       this.moduleId = moduleId2;
       this.instanceId = instanceId;
       this._samplesPerQuantum = 128;
@@ -1097,7 +1122,7 @@ var getWamProcessor = (moduleId) => {
       this._eventReader = null;
       this._initialized = false;
       this._destroyed = false;
-      webAudioModules.create(this);
+      webAudioModules.addWam(this);
       this.port.onmessage = this._onMessage.bind(this);
       if (this._useSab)
         this._configureSab();
@@ -1144,7 +1169,7 @@ var getWamProcessor = (moduleId) => {
     destroy() {
       this._destroyed = true;
       this.port.close();
-      webAudioModules.destroy(this);
+      webAudioModules.removeWam(this);
     }
     _generateWamParameterInfo() {
       return {};
@@ -1327,18 +1352,18 @@ var getWamProcessor = (moduleId) => {
       }
     }
     _connectEvents(wamInstanceId, output) {
-      webAudioModules.connectEvents(this.instanceId, wamInstanceId, output);
+      webAudioModules.connectEvents(this.groupId, this.instanceId, wamInstanceId, output);
     }
     _disconnectEvents(wamInstanceId, output) {
       if (typeof wamInstanceId === "undefined") {
-        webAudioModules.disconnectEvents(this.instanceId);
+        webAudioModules.disconnectEvents(this.groupId, this.instanceId);
         return;
       }
-      webAudioModules.disconnectEvents(this.instanceId, wamInstanceId, output);
+      webAudioModules.disconnectEvents(this.groupId, this.instanceId, wamInstanceId, output);
     }
     _getProcessingSlices() {
       const response = "add/event";
-      const { currentTime, sampleRate } = audioWorkletGlobalScope2;
+      const { currentTime, sampleRate } = audioWorkletGlobalScope;
       const eventsBySampleIndex = {};
       let i = 0;
       while (i < this._eventQueue.length) {
@@ -1407,7 +1432,7 @@ var getWamProcessor = (moduleId) => {
       console.error("_process not implemented!");
     }
   }
-  if (audioWorkletGlobalScope2.AudioWorkletProcessor) {
+  if (audioWorkletGlobalScope.AudioWorkletProcessor) {
     if (!ModuleScope.WamProcessor)
       ModuleScope.WamProcessor = WamProcessor;
   }
@@ -1419,15 +1444,15 @@ var WamProcessor_default = getWamProcessor;
 var RingBuffer = RingBuffer_default();
 var WamEventRingBuffer = WamEventRingBuffer_default();
 var WamNode = class extends AudioWorkletNode {
-  static async addModules(audioContext, moduleId) {
+  static async addModules(audioContext, groupId, moduleId) {
     const { audioWorklet } = audioContext;
-    await addFunctionModule_default(audioWorklet, RingBuffer_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamEventRingBuffer_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamArrayRingBuffer_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamParameter_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamParameterInfo_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamParameterInterpolator_default, moduleId);
-    await addFunctionModule_default(audioWorklet, WamProcessor_default, moduleId);
+    await addFunctionModule_default(audioWorklet, RingBuffer_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamEventRingBuffer_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamArrayRingBuffer_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameter_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameterInfo_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamParameterInterpolator_default, groupId, moduleId);
+    await addFunctionModule_default(audioWorklet, WamProcessor_default, groupId, moduleId);
   }
   constructor(module, options) {
     const { audioContext, moduleId, instanceId } = module;
@@ -1437,7 +1462,7 @@ var WamNode = class extends AudioWorkletNode {
     }, options.processorOptions);
     super(audioContext, moduleId, options);
     this.module = module;
-    this._supportedEventTypes = new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
+    this._supportedEventTypes = /* @__PURE__ */ new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
     this._messageId = 1;
     this._pendingResponses = {};
     this._pendingEvents = {};
@@ -1446,14 +1471,14 @@ var WamNode = class extends AudioWorkletNode {
     this._destroyed = false;
     this.port.onmessage = this._onMessage.bind(this);
   }
+  get groupId() {
+    return this.module.groupId;
+  }
   get moduleId() {
     return this.module.moduleId;
   }
   get instanceId() {
     return this.module.instanceId;
-  }
-  get processorId() {
-    return this.moduleId;
   }
   async getParameterInfo(...parameterIds) {
     const request = "get/parameterInfo";

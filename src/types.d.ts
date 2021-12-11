@@ -1,4 +1,4 @@
-import { WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
+import { WebAudioModule as IWebAudioModule, WamGroup as IWamGroup, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -251,9 +251,9 @@ export const WamArrayRingBuffer: {
 };
 
 export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListener" | "removeEventListener"> {
+	readonly groupId: string;
 	readonly moduleId: string;
 	readonly instanceId: string;
-	readonly processorId: string;
 
 	/** Note: methods and members starting with underscore should not be accessed by host. */
 	_generateMessageId(): number;
@@ -275,7 +275,7 @@ export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListe
 }
 export const WamNode: {
 	prototype: WamNode;
-	addModules(audioContext: BaseAudioContext, moduleId: string): Promise<void>;
+	addModules(audioContext: BaseAudioContext, groupId: string, moduleId: string): Promise<void>;
 	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 
@@ -365,9 +365,21 @@ export interface WebAudioModule<Node extends IWamNode = IWamNode> extends IWebAu
 
 export const WebAudioModule: {
 	prototype: WebAudioModule;
-	createInstance<Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
-	new <Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
+	createInstance<Node extends IWamNode = IWamNode>(groupId: string, audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
+	new <Node extends IWamNode = IWamNode>(groupId: string, audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
+
+export interface WamGroup extends IWamGroup {
+	_validate(k: string): boolean;
+	_moduleScopes: Map<string, any>;
+	_eventGraph: Map<IWamProcessor, Set<IWamProcessor>[]>;
+	_processors: Map<string, IWamProcessor>;
+}
+
+export const WamGroup: {
+	prototype: WamGroup;
+	new (groupId: string, groupKey: string): WamGroup;
+}
 
 export interface WamSDKBaseModuleScope {
 	RingBuffer?: typeof RingBuffer;
@@ -377,4 +389,5 @@ export interface WamSDKBaseModuleScope {
 	WamParameterInfo?: typeof WamParameterInfo;
 	WamParameterInterpolator?: typeof WamParameterInterpolator;
 	WamProcessor?: typeof WamProcessor;
+	WamGroup?: typeof WamGroup;
 }

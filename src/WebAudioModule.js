@@ -9,16 +9,21 @@ class WebAudioModule {
 	}
 
 	/**
+	 * @param {string} groupId
 	 * @param {BaseAudioContext} audioContext
 	 * @param {any} [initialState]
 	 * @returns {Promise<IWebAudioModule<any>>}
 	 */
-	static createInstance(audioContext, initialState) {
-		return new this(audioContext).initialize(initialState);
+	static createInstance(groupId, audioContext, initialState) {
+		return new this(groupId, audioContext).initialize(initialState);
 	}
 
-	/** @param {BaseAudioContext} audioContext */
-	constructor(audioContext) {
+	/** 
+	 * @param {string} groupId
+	 * @param {BaseAudioContext} audioContext 
+	 */
+	constructor(groupId, audioContext) {
+		this._groupId = groupId;
 		this._audioContext = audioContext;
 		this._initialized = false;
 		/** @type {WamNode} */
@@ -63,6 +68,8 @@ class WebAudioModule {
 	get isWebAudioModule() {
 		return true;
 	}
+
+	get groupId() { return this._groupId; }
 
 	get moduleId() { return this.vendor + this.name; }
 

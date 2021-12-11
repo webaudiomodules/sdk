@@ -25,17 +25,18 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
+	 * @param {string} groupId
 	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, moduleId) {
+	static async addModules(audioContext, groupId, moduleId) {
 		const { audioWorklet } = audioContext;
-		await addFunctionModule(audioWorklet, getRingBuffer, moduleId);
-		await addFunctionModule(audioWorklet, getWamEventRingBuffer, moduleId);
-		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, moduleId);
-		await addFunctionModule(audioWorklet, getWamParameter, moduleId);
-		await addFunctionModule(audioWorklet, getWamParameterInfo, moduleId);
-		await addFunctionModule(audioWorklet, getWamParameterInterpolator, moduleId);
-		await addFunctionModule(audioWorklet, getWamProcessor, moduleId);
+		await addFunctionModule(audioWorklet, getRingBuffer, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamEventRingBuffer, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameter, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInfo, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInterpolator, groupId, moduleId);
+		await addFunctionModule(audioWorklet, getWamProcessor, groupId, moduleId);
 	}
 
 	/**
@@ -72,11 +73,11 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/** @returns {string} */
+	get groupId() { return this.module.groupId; }
+	/** @returns {string} */
 	get moduleId() { return this.module.moduleId; }
 	/** @returns {string} */
 	get instanceId() { return this.module.instanceId; }
-	/** @returns {string} */
-	get processorId() { return this.moduleId; }
 
 	/**
 	 * Get parameter info for the specified parameter ids,

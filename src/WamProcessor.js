@@ -17,10 +17,11 @@
 /** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
- * @param {string} [moduleId]
+ * @param {string} groupId
+ * @param {string} moduleId
  * @returns {WamProcessorConstructor}
  */
-const getWamProcessor = (moduleId) => {
+const getWamProcessor = (groupId, moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -30,7 +31,7 @@ const getWamProcessor = (moduleId) => {
 	} = audioWorkletGlobalScope;
 	
 	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
 	const {
 		RingBuffer,
 		WamEventRingBuffer,
@@ -56,6 +57,8 @@ const getWamProcessor = (moduleId) => {
 			if (!moduleId) throw Error('must provide moduleId argument in processorOptions!');
 			if (!instanceId) throw Error('must provide instanceId argument in processorOptions!');
 
+			/** @type {string} */
+			this.groupId = groupId;
 			/** @type {string} */
 			this.moduleId = moduleId;
 			/** @type {string} */
@@ -91,7 +94,7 @@ const getWamProcessor = (moduleId) => {
 			/** @type {boolean} */
 			this._destroyed = false;
 
-			webAudioModules.create(this);
+			webAudioModules.addWam(this);
 
 			this.port.onmessage = this._onMessage.bind(this);
 
@@ -170,7 +173,7 @@ const getWamProcessor = (moduleId) => {
 		destroy() {
 			this._destroyed = true;
 			this.port.close();
-			webAudioModules.destroy(this);
+			webAudioModules.removeWam(this);
 		}
 
 		/**
@@ -441,7 +444,7 @@ const getWamProcessor = (moduleId) => {
 		 * @param {number} [output]
 		 */
 		_connectEvents(wamInstanceId, output) {
-			webAudioModules.connectEvents(this.instanceId, wamInstanceId, output);
+			webAudioModules.connectEvents(this.groupId, this.instanceId, wamInstanceId, output);
 		}
 
 		/**
@@ -450,10 +453,10 @@ const getWamProcessor = (moduleId) => {
 		 */
 		_disconnectEvents(wamInstanceId, output) {
 			if (typeof wamInstanceId === 'undefined') {
-				webAudioModules.disconnectEvents(this.instanceId);
+				webAudioModules.disconnectEvents(this.groupId, this.instanceId);
 				return;
 			}
-			webAudioModules.disconnectEvents(this.instanceId, wamInstanceId, output);
+			webAudioModules.disconnectEvents(this.groupId, this.instanceId, wamInstanceId, output);
 		}
 
 		/**

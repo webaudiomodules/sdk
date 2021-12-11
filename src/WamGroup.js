@@ -28,7 +28,7 @@
 			this.groupId = id;
 
 			// TODO Idea here is to obfuscate the credentials. Not sure if it's airtight, let's discuss
-			/** @type {function(string):boolean} */
+			/** @type {(key: string) => boolean} */
 			this._validate = (k) => {
 				return k == key;
 			}

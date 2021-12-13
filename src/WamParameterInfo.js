@@ -6,11 +6,10 @@
 /** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
- * @param {string} [groupId]
  * @param {string} [moduleId]
  * @returns {WamParameterInfoConstructor}
  */
-const getWamParameterInfo = (groupId, moduleId) => {
+const getWamParameterInfo = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -194,7 +193,7 @@ const getWamParameterInfo = (groupId, moduleId) => {
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
 		/** @type {WamSDKBaseModuleScope} */
-		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	
 		if (!ModuleScope.WamParameterInfo) ModuleScope.WamParameterInfo = WamParameterInfo;
 	}

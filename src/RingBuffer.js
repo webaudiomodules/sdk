@@ -6,11 +6,10 @@
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 
 /**
- * @param {string} [groupId]
  * @param {string} [moduleId]
  * @returns {RingBufferConstructor}
  */
-const getRingBuffer = (groupId, moduleId) => {
+const getRingBuffer = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -246,7 +245,7 @@ const getRingBuffer = (groupId, moduleId) => {
 
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
 		/** @type {WamSDKBaseModuleScope} */
-		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 
 		if (!ModuleScope.RingBuffer) ModuleScope.RingBuffer = RingBuffer;
 	}

@@ -1,6 +1,7 @@
 /** @typedef {import('@webaudiomodules/api').WamProcessor} IWamProcessor */
 /** @typedef {import('@webaudiomodules/api').WamEnv} IWamEnv */
 /** @typedef {import('@webaudiomodules/api').WamGroup} IWamGroup */
+/** @typedef {import('@webaudiomodules/api').WamEvent} WamEvent */
 /** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /**
@@ -12,7 +13,10 @@ const initializeWamEnv = (apiVersion) => {
 	const audioWorkletGlobalScope = globalThis;
 	if (audioWorkletGlobalScope.AudioWorkletProcessor 
 		&& audioWorkletGlobalScope.webAudioModules) return; // already initialized
-	
+
+	/** @type {Map<string, any>} */
+	const moduleScopes = new Map();
+
 	/** @type {Map<string, IWamGroup>} */
 	const groups = new Map();
 	
@@ -24,6 +28,15 @@ const initializeWamEnv = (apiVersion) => {
 
 		get apiVersion() {
 			return apiVersion;
+		}
+
+		/**
+		 * @param {string} moduleId 
+		 * @returns {Record<string, any>}
+		*/
+		getModuleScope(moduleId) {
+			if (!moduleScopes.has(moduleId)) moduleScopes.set(moduleId, {});
+			return moduleScopes.get(moduleId);
 		}
 
 		/** 
@@ -56,7 +69,7 @@ const initializeWamEnv = (apiVersion) => {
 		addWam(wam) {
 			/** @type {IWamGroup} */
 			const group = groups.get(wam.groupId);
-			group.getProcessors().set(wam.instanceId, wam);
+			group.addWam(wam);
 		}
 
 		/**
@@ -65,27 +78,7 @@ const initializeWamEnv = (apiVersion) => {
 		removeWam(wam) {
 			/** @type {IWamGroup} */
 			const group = groups.get(wam.groupId);
-			const eventGraph = group.getEventGraph();
-			const processors = group.getProcessors();
-
-			if (eventGraph.has(wam)) eventGraph.delete(wam);
-			eventGraph.forEach((outputMap) => {
-				outputMap.forEach((set) => {
-					if (set && set.has(wam)) set.delete(wam);
-				});
-			});
-			processors.delete(wam.instanceId);
-		}
-
-		/**
-		 * @param {string} groupId
-		 * @param {string} moduleId 
-		 * @returns {Record<string, any>}
-		 */
-		getModuleScope(groupId, moduleId) {
-			/** @type {IWamGroup} */
-			const group = groups.get(groupId);
-			return group.getModuleScope(moduleId);
+			group.removeWam(wam);
 		}
 
 		/**
@@ -97,29 +90,7 @@ const initializeWamEnv = (apiVersion) => {
 		connectEvents(groupId, fromId, toId, output = 0) {
 			/** @type {IWamGroup} */
 			const group = groups.get(groupId);
-			const eventGraph = group.getEventGraph();
-			const processors = group.getProcessors();
-
-			/** @type {IWamProcessor} */
-			const from = processors.get(fromId);
-			/** @type {IWamProcessor} */
-			const to = processors.get(toId);
-
-			/** @type {Set<IWamProcessor>[]} */
-			let outputMap;
-			if (eventGraph.has(from)) {
-				outputMap = eventGraph.get(from);
-			} else {
-				outputMap = [];
-				eventGraph.set(from, outputMap);
-			}
-			if (outputMap[output]) {
-				outputMap[output].add(to);
-			} else {
-				const set = new Set();
-				set.add(to);
-				outputMap[output] = set;
-			}
+			group.connectEvents(fromId, toId, output);
 		}
 
 		/**
@@ -131,47 +102,17 @@ const initializeWamEnv = (apiVersion) => {
 		disconnectEvents(groupId, fromId, toId, output) {
 			/** @type {IWamGroup} */
 			const group = groups.get(groupId);
-			const eventGraph = group.getEventGraph();
-			const processors = group.getProcessors();
-			/** @type {IWamProcessor} */
-			const from = processors.get(fromId);
-			
-			if (!eventGraph.has(from)) return;
-			const outputMap = eventGraph.get(from);
-			if (typeof toId === 'undefined') {
-				outputMap.forEach((set) => {
-					if (set) set.clear();
-				});
-				return;
-			} 
-			
-			/** @type {IWamProcessor} */
-			const to = processors.get(toId);
-
-			if (typeof output === 'undefined') {
-				outputMap.forEach((set) => {
-					if (set) set.delete(to);
-				});
-				return;
-			}
-			if (!outputMap[output]) return;
-			outputMap[output].delete(to);
+			group.disconnectEvents(fromId, toId, output);
 		}
 
 		/**
 		 * @param {IWamProcessor} from
-		 * @param {any[]} events 
+		 * @param {WamEvent[]} events 
 		 */
 		emitEvents(from, ...events) {
 			/** @type {IWamGroup} */
 			const group = groups.get(from.groupId);
-			const eventGraph = group.getEventGraph();
-
-			if (!eventGraph.has(from)) return;
-			const downstream = eventGraph.get(from);
-			downstream.forEach((set) => {
-				if (set) set.forEach((wam) => wam.scheduleEvents(...events));
-			});
+			group.emitEvents(from, ...events);
 		}
 	}
 

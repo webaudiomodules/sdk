@@ -17,11 +17,10 @@
 /** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
- * @param {string} groupId
  * @param {string} moduleId
  * @returns {WamProcessorConstructor}
  */
-const getWamProcessor = (groupId, moduleId) => {
+const getWamProcessor = (moduleId) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;
@@ -31,7 +30,7 @@ const getWamProcessor = (groupId, moduleId) => {
 	} = audioWorkletGlobalScope;
 	
 	/** @type {WamSDKBaseModuleScope} */
-	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(groupId, moduleId);
+	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	const {
 		RingBuffer,
 		WamEventRingBuffer,
@@ -49,6 +48,7 @@ const getWamProcessor = (groupId, moduleId) => {
 		constructor(options) {
 			super(options);
 			const {
+				groupId,
 				moduleId,
 				instanceId,
 				useSab,

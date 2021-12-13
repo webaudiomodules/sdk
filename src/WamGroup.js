@@ -8,7 +8,7 @@
  * @param {string} groupId
  * @param {string} groupKey
  */
- const initializeWamGroup = (groupId, groupKey) => {
+const initializeWamGroup = (groupId, groupKey) => {
 	/** @type {AudioWorkletGlobalScope} */
 	// @ts-ignore
 	const audioWorkletGlobalScope = globalThis;

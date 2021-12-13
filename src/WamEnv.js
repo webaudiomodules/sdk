@@ -13,7 +13,7 @@ const initializeWamEnv = (apiVersion) => {
 	if (audioWorkletGlobalScope.AudioWorkletProcessor 
 		&& audioWorkletGlobalScope.webAudioModules) return; // already initialized
 	
-	/** @type {Map<string, IWamGroup>}] */
+	/** @type {Map<string, IWamGroup>} */
 	const groups = new Map();
 	
 	/**
@@ -78,7 +78,7 @@ const initializeWamEnv = (apiVersion) => {
 		}
 
 		/**
-		 * 
+		 * @param {string} groupId
 		 * @param {string} moduleId 
 		 * @returns {Record<string, any>}
 		 */
@@ -160,7 +160,7 @@ const initializeWamEnv = (apiVersion) => {
 
 		/**
 		 * @param {IWamProcessor} from
-		 * @param  {...any} events 
+		 * @param {any[]} events 
 		 */
 		emitEvents(from, ...events) {
 			/** @type {IWamGroup} */

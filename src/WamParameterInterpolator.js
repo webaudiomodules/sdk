@@ -20,7 +20,6 @@ const getWamParameterInterpolator = (moduleId) => {
 	 * Provides per-sample value updates for WamParameters
 	 * with interpolation when applicable. Only one instance
 	 * should be created per WamParameter.
-	 * TODO write equivalent C++ code for WASM implementations?
 	 * @implements {IWamParameterInterpolator}
 	 */
 	class WamParameterInterpolator {

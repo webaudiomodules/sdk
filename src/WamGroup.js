@@ -19,15 +19,9 @@ const initializeWamGroup = (groupId, groupKey) => {
 		 * @param {string} groupKey
 		 */
 		constructor(groupId, groupKey) {
-			// TODO Could just use groupId, groupKey from initializeWamGroup rather than pass as ctor
-			// args, since ctor shouldn't really be called directly anyway. That is, with current approach
-			// it should always be the case that `groupId == id && groupKey == key` here.
-			// but maybe useful for tests to do it this way? Let's discuss
-
 			/** @type {string} */
 			this._groupId = groupId;
 
-			// TODO Idea here is to obfuscate the credentials. Not sure if it's airtight, let's discuss
 			/** @type {(key: string) => boolean} */
 			this._validate = (key) => {
 				return key == groupKey;

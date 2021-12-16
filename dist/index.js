@@ -321,8 +321,8 @@ var initializeWamEnv = (apiVersion) => {
   const audioWorkletGlobalScope = globalThis;
   if (audioWorkletGlobalScope.AudioWorkletProcessor && audioWorkletGlobalScope.webAudioModules)
     return;
-  const moduleScopes = /* @__PURE__ */ new Map();
-  const groups = /* @__PURE__ */ new Map();
+  const moduleScopes = new Map();
+  const groups = new Map();
   class WamEnv {
     constructor() {
     }
@@ -385,11 +385,17 @@ var initializeWamGroup = (groupId, groupKey) => {
       this._validate = (key) => {
         return key == groupKey2;
       };
-      this._eventGraph = /* @__PURE__ */ new Map();
-      this._processors = /* @__PURE__ */ new Map();
+      this._processors = new Map();
+      this._eventGraph = new Map();
     }
     get groupId() {
       return this._groupId;
+    }
+    get processors() {
+      return this._processors;
+    }
+    get eventGraph() {
+      return this._eventGraph;
     }
     validate(groupKey2) {
       return this._validate(groupKey2);
@@ -421,7 +427,7 @@ var initializeWamGroup = (groupId, groupKey) => {
       if (outputMap[output]) {
         outputMap[output].add(to);
       } else {
-        const set = /* @__PURE__ */ new Set();
+        const set = new Set();
         set.add(to);
         outputMap[output] = set;
       }
@@ -1499,7 +1505,7 @@ var WamNode = class extends AudioWorkletNode {
     }, options.processorOptions);
     super(audioContext, moduleId, options);
     this.module = module;
-    this._supportedEventTypes = /* @__PURE__ */ new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
+    this._supportedEventTypes = new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
     this._messageId = 1;
     this._pendingResponses = {};
     this._pendingEvents = {};

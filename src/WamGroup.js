@@ -27,14 +27,23 @@ const initializeWamGroup = (groupId, groupKey) => {
 				return key == groupKey;
 			}
 
-			/** @type {Map<IWamProcessor, Set<IWamProcessor>[]>} */
-			this._eventGraph = new Map();
 			/** @type {Map<string, IWamProcessor>} */
 			this._processors = new Map();
+
+			/** @type {Map<IWamProcessor, Set<IWamProcessor>[]>} */
+			this._eventGraph = new Map();
 		}
 
 		get groupId() {
 			return this._groupId;
+		}
+
+		get processors() {
+			return this._processors;
+		}
+
+		get eventGraph() {
+			return this._eventGraph;
 		}
 
 		validate(groupKey) {

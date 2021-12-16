@@ -371,8 +371,8 @@ export const WebAudioModule: {
 
 export interface WamGroup extends IWamGroup {
 	_validate(key: string): boolean;
-	_eventGraph: Map<IWamProcessor, Set<IWamProcessor>[]>;
-	_processors: Map<string, IWamProcessor>;
+	processors: Map<string, IWamProcessor>;
+	eventGraph: Map<IWamProcessor, Set<IWamProcessor>[]>;
 }
 
 export const WamGroup: {

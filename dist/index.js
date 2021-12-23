@@ -1,24 +1,3 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __publicField = (obj, key, value) => {
-  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  return value;
-};
-
 // src/WebAudioModule.js
 var WebAudioModule = class {
   static get isWebAudioModuleConstructor() {
@@ -250,12 +229,13 @@ var RingBuffer_default = getRingBuffer;
 // src/WamArrayRingBuffer.js
 var getWamArrayRingBuffer = (moduleId) => {
   const audioWorkletGlobalScope = globalThis;
-  const _WamArrayRingBuffer = class {
+  class WamArrayRingBuffer {
+    static DefaultArrayCapacity = 2;
     static getStorageForEventCapacity(RingBuffer2, arrayLength, arrayType, maxArrayCapacity = void 0) {
       if (maxArrayCapacity === void 0)
-        maxArrayCapacity = _WamArrayRingBuffer.DefaultArrayCapacity;
+        maxArrayCapacity = WamArrayRingBuffer.DefaultArrayCapacity;
       else
-        maxArrayCapacity = Math.max(maxArrayCapacity, _WamArrayRingBuffer.DefaultArrayCapacity);
+        maxArrayCapacity = Math.max(maxArrayCapacity, WamArrayRingBuffer.DefaultArrayCapacity);
       if (!arrayType.BYTES_PER_ELEMENT) {
         throw new Error("Pass in a ArrayBuffer subclass");
       }
@@ -272,9 +252,9 @@ var getWamArrayRingBuffer = (moduleId) => {
       this._arraySizeBytes = this._arrayLength * this._arrayElementSizeBytes;
       this._sab = sab;
       if (maxArrayCapacity === void 0)
-        maxArrayCapacity = _WamArrayRingBuffer.DefaultArrayCapacity;
+        maxArrayCapacity = WamArrayRingBuffer.DefaultArrayCapacity;
       else
-        maxArrayCapacity = Math.max(maxArrayCapacity, _WamArrayRingBuffer.DefaultArrayCapacity);
+        maxArrayCapacity = Math.max(maxArrayCapacity, WamArrayRingBuffer.DefaultArrayCapacity);
       this._arrayArray = new arrayType(this._arrayLength);
       this._rb = new RingBuffer2(this._sab, arrayType);
     }
@@ -304,9 +284,7 @@ var getWamArrayRingBuffer = (moduleId) => {
         success = true;
       return success;
     }
-  };
-  let WamArrayRingBuffer = _WamArrayRingBuffer;
-  __publicField(WamArrayRingBuffer, "DefaultArrayCapacity", 2);
+  }
   if (audioWorkletGlobalScope.AudioWorkletProcessor) {
     const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
     if (!ModuleScope.WamArrayRingBuffer)
@@ -321,8 +299,8 @@ var initializeWamEnv = (apiVersion) => {
   const audioWorkletGlobalScope = globalThis;
   if (audioWorkletGlobalScope.AudioWorkletProcessor && audioWorkletGlobalScope.webAudioModules)
     return;
-  const moduleScopes = new Map();
-  const groups = new Map();
+  const moduleScopes = /* @__PURE__ */ new Map();
+  const groups = /* @__PURE__ */ new Map();
   class WamEnv {
     constructor() {
     }
@@ -385,8 +363,8 @@ var initializeWamGroup = (groupId, groupKey) => {
       this._validate = (key) => {
         return key == groupKey2;
       };
-      this._processors = new Map();
-      this._eventGraph = new Map();
+      this._processors = /* @__PURE__ */ new Map();
+      this._eventGraph = /* @__PURE__ */ new Map();
     }
     get groupId() {
       return this._groupId;
@@ -427,7 +405,7 @@ var initializeWamGroup = (groupId, groupKey) => {
       if (outputMap[output]) {
         outputMap[output].add(to);
       } else {
-        const set = new Set();
+        const set = /* @__PURE__ */ new Set();
         set.add(to);
         outputMap[output] = set;
       }
@@ -475,13 +453,19 @@ var WamGroup_default = initializeWamGroup;
 // src/WamEventRingBuffer.js
 var getWamEventRingBuffer = (moduleId) => {
   const audioWorkletGlobalScope = globalThis;
-  const _WamEventRingBuffer = class {
+  class WamEventRingBuffer2 {
+    static DefaultExtraBytesPerEvent = 64;
+    static WamEventBaseBytes = 4 + 1 + 8;
+    static WamAutomationEventBytes = WamEventRingBuffer2.WamEventBaseBytes + 2 + 8 + 1;
+    static WamTransportEventBytes = WamEventRingBuffer2.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1;
+    static WamMidiEventBytes = WamEventRingBuffer2.WamEventBaseBytes + 1 + 1 + 1;
+    static WamBinaryEventBytes = WamEventRingBuffer2.WamEventBaseBytes + 4;
     static getStorageForEventCapacity(RingBuffer2, eventCapacity, maxBytesPerEvent = void 0) {
       if (maxBytesPerEvent === void 0)
-        maxBytesPerEvent = _WamEventRingBuffer.DefaultExtraBytesPerEvent;
+        maxBytesPerEvent = WamEventRingBuffer2.DefaultExtraBytesPerEvent;
       else
-        maxBytesPerEvent = Math.max(maxBytesPerEvent, _WamEventRingBuffer.DefaultExtraBytesPerEvent);
-      const capacity = (Math.max(_WamEventRingBuffer.WamAutomationEventBytes, _WamEventRingBuffer.WamTransportEventBytes, _WamEventRingBuffer.WamMidiEventBytes, _WamEventRingBuffer.WamBinaryEventBytes) + maxBytesPerEvent) * eventCapacity;
+        maxBytesPerEvent = Math.max(maxBytesPerEvent, WamEventRingBuffer2.DefaultExtraBytesPerEvent);
+      const capacity = (Math.max(WamEventRingBuffer2.WamAutomationEventBytes, WamEventRingBuffer2.WamTransportEventBytes, WamEventRingBuffer2.WamMidiEventBytes, WamEventRingBuffer2.WamBinaryEventBytes) + maxBytesPerEvent) * eventCapacity;
       return RingBuffer2.getStorageForCapacity(capacity, Uint8Array);
     }
     constructor(RingBuffer2, sab, parameterIds, maxBytesPerEvent = void 0) {
@@ -493,19 +477,19 @@ var getWamEventRingBuffer = (moduleId) => {
         let byteSize = 0;
         switch (type) {
           case "wam-automation":
-            byteSize = _WamEventRingBuffer.WamAutomationEventBytes;
+            byteSize = WamEventRingBuffer2.WamAutomationEventBytes;
             break;
           case "wam-transport":
-            byteSize = _WamEventRingBuffer.WamTransportEventBytes;
+            byteSize = WamEventRingBuffer2.WamTransportEventBytes;
             break;
           case "wam-mpe":
           case "wam-midi":
-            byteSize = _WamEventRingBuffer.WamMidiEventBytes;
+            byteSize = WamEventRingBuffer2.WamMidiEventBytes;
             break;
           case "wam-osc":
           case "wam-sysex":
           case "wam-info":
-            byteSize = _WamEventRingBuffer.WamBinaryEventBytes;
+            byteSize = WamEventRingBuffer2.WamBinaryEventBytes;
             break;
           default:
             break;
@@ -521,10 +505,10 @@ var getWamEventRingBuffer = (moduleId) => {
       this.setParameterIds(parameterIds);
       this._sab = sab;
       if (maxBytesPerEvent === void 0)
-        maxBytesPerEvent = _WamEventRingBuffer.DefaultExtraBytesPerEvent;
+        maxBytesPerEvent = WamEventRingBuffer2.DefaultExtraBytesPerEvent;
       else
-        maxBytesPerEvent = Math.max(maxBytesPerEvent, _WamEventRingBuffer.DefaultExtraBytesPerEvent);
-      this._eventBytesAvailable = Math.max(_WamEventRingBuffer.WamAutomationEventBytes, _WamEventRingBuffer.WamTransportEventBytes, _WamEventRingBuffer.WamMidiEventBytes, _WamEventRingBuffer.WamBinaryEventBytes) + maxBytesPerEvent;
+        maxBytesPerEvent = Math.max(maxBytesPerEvent, WamEventRingBuffer2.DefaultExtraBytesPerEvent);
+      this._eventBytesAvailable = Math.max(WamEventRingBuffer2.WamAutomationEventBytes, WamEventRingBuffer2.WamTransportEventBytes, WamEventRingBuffer2.WamMidiEventBytes, WamEventRingBuffer2.WamBinaryEventBytes) + maxBytesPerEvent;
       this._eventBytes = new ArrayBuffer(this._eventBytesAvailable);
       this._eventBytesView = new DataView(this._eventBytes);
       this._rb = new RingBuffer2(this._sab, Uint8Array);
@@ -790,14 +774,7 @@ var getWamEventRingBuffer = (moduleId) => {
         throw Error("Too many parameters have been registered!");
       return this._parameterCode++;
     }
-  };
-  let WamEventRingBuffer2 = _WamEventRingBuffer;
-  __publicField(WamEventRingBuffer2, "DefaultExtraBytesPerEvent", 64);
-  __publicField(WamEventRingBuffer2, "WamEventBaseBytes", 4 + 1 + 8);
-  __publicField(WamEventRingBuffer2, "WamAutomationEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 2 + 8 + 1);
-  __publicField(WamEventRingBuffer2, "WamTransportEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4 + 8 + 8 + 1 + 1 + 1);
-  __publicField(WamEventRingBuffer2, "WamMidiEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 1 + 1 + 1);
-  __publicField(WamEventRingBuffer2, "WamBinaryEventBytes", _WamEventRingBuffer.WamEventBaseBytes + 4);
+  }
   if (audioWorkletGlobalScope.AudioWorkletProcessor) {
     const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
     if (!ModuleScope.WamEventRingBuffer)
@@ -945,16 +922,18 @@ var getWamParameterInterpolator = (moduleId) => {
   const audioWorkletGlobalScope = globalThis;
   const samplesPerQuantum = 128;
   const nullTableKey = "0_0";
-  const _WamParameterInterpolator = class {
+  class WamParameterInterpolator {
+    static _tables;
+    static _tableReferences;
     constructor(info, samplesPerInterpolation, skew = 0) {
-      if (!_WamParameterInterpolator._tables) {
-        _WamParameterInterpolator._tables = { nullTableKey: new Float32Array(0) };
-        _WamParameterInterpolator._tableReferences = { nullTableKey: [] };
+      if (!WamParameterInterpolator._tables) {
+        WamParameterInterpolator._tables = { nullTableKey: new Float32Array(0) };
+        WamParameterInterpolator._tableReferences = { nullTableKey: [] };
       }
       this.info = info;
       this.values = new Float32Array(samplesPerQuantum);
       this._tableKey = nullTableKey;
-      this._table = _WamParameterInterpolator._tables[this._tableKey];
+      this._table = WamParameterInterpolator._tables[this._tableKey];
       this._skew = 2;
       const { discreteStep } = info;
       this._discrete = !!discreteStep;
@@ -977,14 +956,14 @@ var getWamParameterInterpolator = (moduleId) => {
       if (oldKey === nullTableKey)
         return;
       const { id } = this.info;
-      const references = _WamParameterInterpolator._tableReferences[oldKey];
+      const references = WamParameterInterpolator._tableReferences[oldKey];
       if (references) {
         const index = references.indexOf(id);
         if (index !== -1)
           references.splice(index, 1);
         if (references.length === 0) {
-          delete _WamParameterInterpolator._tables[oldKey];
-          delete _WamParameterInterpolator._tableReferences[oldKey];
+          delete WamParameterInterpolator._tables[oldKey];
+          delete WamParameterInterpolator._tableReferences[oldKey];
         }
       }
     }
@@ -998,12 +977,12 @@ var getWamParameterInterpolator = (moduleId) => {
       const { id } = this.info;
       if (newKey === oldKey)
         return;
-      if (_WamParameterInterpolator._tables[newKey]) {
-        const references = _WamParameterInterpolator._tableReferences[newKey];
+      if (WamParameterInterpolator._tables[newKey]) {
+        const references = WamParameterInterpolator._tableReferences[newKey];
         if (references)
           references.push(id);
         else
-          _WamParameterInterpolator._tableReferences[newKey] = [id];
+          WamParameterInterpolator._tableReferences[newKey] = [id];
       } else {
         let e = Math.abs(skew);
         e = Math.pow(3 - e, e * (e + 2));
@@ -1016,13 +995,13 @@ var getWamParameterInterpolator = (moduleId) => {
         else
           for (let n = 0; n <= N; ++n)
             table[n] = (n / N) ** e;
-        _WamParameterInterpolator._tables[newKey] = table;
-        _WamParameterInterpolator._tableReferences[newKey] = [id];
+        WamParameterInterpolator._tables[newKey] = table;
+        WamParameterInterpolator._tableReferences[newKey] = [id];
       }
       this._removeTableReference(oldKey);
       this._skew = skew;
       this._tableKey = newKey;
-      this._table = _WamParameterInterpolator._tables[this._tableKey];
+      this._table = WamParameterInterpolator._tables[this._tableKey];
     }
     setStartValue(value, fill = true) {
       this._n = this._N;
@@ -1106,10 +1085,7 @@ var getWamParameterInterpolator = (moduleId) => {
     destroy() {
       this._removeTableReference(this._tableKey);
     }
-  };
-  let WamParameterInterpolator = _WamParameterInterpolator;
-  __publicField(WamParameterInterpolator, "_tables");
-  __publicField(WamParameterInterpolator, "_tableReferences");
+  }
   if (audioWorkletGlobalScope.AudioWorkletProcessor) {
     const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
     if (!ModuleScope.WamParameterInterpolator)
@@ -1498,14 +1474,15 @@ var WamNode = class extends AudioWorkletNode {
   }
   constructor(module, options) {
     const { audioContext, groupId, moduleId, instanceId } = module;
-    options.processorOptions = __spreadValues({
+    options.processorOptions = {
       groupId,
       moduleId,
-      instanceId
-    }, options.processorOptions);
+      instanceId,
+      ...options.processorOptions
+    };
     super(audioContext, moduleId, options);
     this.module = module;
-    this._supportedEventTypes = new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
+    this._supportedEventTypes = /* @__PURE__ */ new Set(["wam-automation", "wam-transport", "wam-midi", "wam-sysex", "wam-mpe", "wam-osc"]);
     this._messageId = 1;
     this._pendingResponses = {};
     this._pendingEvents = {};

@@ -1717,10 +1717,58 @@ var WamNode = class extends AudioWorkletNode {
     }));
   }
 };
+
+// src/apiVersion.js
+var apiVersion_default = "2.0.0-alpha.3";
+
+// ../api/src/AbstractWamGroup.js
+var initializeWamGroup2 = (groupId, groupKey) => {
+  class WamGroup {
+    get groupId() {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    validate(groupKey2) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    addWam(wam) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    removeWam(wam) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    connectEvents(fromId, toId, output) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    disconnectEvents(fromId, toId, output) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+    emitEvents(from, ...events) {
+      throw new Error("Not Implemented.");
+      return null;
+    }
+  }
+  return WamGroup;
+};
+var AbstractWamGroup_default = initializeWamGroup2;
+
+// src/initializeWamHost.js
+var initializeWamHost = async (audioContext, hostGroupId = `wam-host-${performance.now().toString()}`, hostGroupKey = performance.now().toString()) => {
+  await addFunctionModule_default(audioContext.audioWorklet, WamEnv_default, apiVersion_default);
+  await addFunctionModule_default(audioContext.audioWorklet, AbstractWamGroup_default, hostGroupId, hostGroupKey);
+  return [hostGroupId, hostGroupKey];
+};
+var initializeWamHost_default = initializeWamHost;
 export {
   WamNode,
   WebAudioModule_default as WebAudioModule,
   addFunctionModule_default as addFunctionModule,
+  apiVersion_default as apiVersion,
   RingBuffer_default as getRingBuffer,
   WamArrayRingBuffer_default as getWamArrayRingBuffer,
   WamEventRingBuffer_default as getWamEventRingBuffer,
@@ -1729,6 +1777,7 @@ export {
   WamParameterInterpolator_default as getWamParameterInterpolator,
   WamProcessor_default as getWamProcessor,
   WamEnv_default as initializeWamEnv,
-  WamGroup_default as initializeWamGroup
+  WamGroup_default as initializeWamGroup,
+  initializeWamHost_default as initializeWamHost
 };
 //# sourceMappingURL=index.js.map

@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "types": "src/index.d.ts",
   "scripts": {
+    "prebuild": "node src/prebuild.js",
     "build": "esbuild src/index.js --target=esnext --bundle --sourcemap --outdir=dist --format=esm",
     "test": "jest"
   },
@@ -24,7 +25,7 @@
   "scriptPreprocessor": "node_modules/babel-jest",
   "devDependencies": {
     "@types/jest": "^27.0.3",
-    "@webaudiomodules/api": "file:../api",
+    "@webaudiomodules/api": "^2.0.0-alpha.3",
     "dts-bundle-generator": "^6.2.0",
     "esbuild": "^0.14.2",
     "esbuild-jest": "^0.5.0",

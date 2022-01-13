@@ -10,4 +10,6 @@ export { default as getWamParameterInfo } from './WamParameterInfo.js';
 export { default as getWamParameterInterpolator } from './WamParameterInterpolator.js';
 export { default as getWamProcessor } from './WamProcessor.js';
 export { default as addFunctionModule } from './addFunctionModule.js';
+export { default as apiVersion } from './apiVersion.js';
+export { default as initializeWamHost } from './initializeWamHost.js';
 export * from "./types";

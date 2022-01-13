@@ -1,7 +1,7 @@
 import apiVersion from './apiVersion.js';
 import addFunctionModule from './addFunctionModule.js';
 import initializeWamEnv from './WamEnv.js';
-import initializeWamGroup from 'api/src/AbstractWamGroup.js';
+import initializeWamGroup from './WamGroup.js';
 
 /**
  * @param {BaseAudioContext} audioContext

@@ -5,8 +5,8 @@ import initializeWamGroup from './WamGroup.js';
 
 /**
  * @param {BaseAudioContext} audioContext
- * @param {string} hostGroupId
- * @param {string} hostGroupKey
+ * @param {string} [hostGroupId]
+ * @param {string} [hostGroupKey]
  * @returns {Promise<[string, string]>} [hostGroupId, hostGroupKey]
  */
 const initializeWamHost = async (audioContext, hostGroupId = `wam-host-${performance.now().toString()}`, hostGroupKey = performance.now().toString()) => {

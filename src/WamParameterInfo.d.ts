@@ -1,3 +1,5 @@
 import { WamParameterInfo } from '@webaudiomodules/api';
 
-export default WamParameterInfo;
+declare const getWamParameterInfo: (moduleId?: string) => typeof WamParameterInfo;
+
+export default getWamParameterInfo;

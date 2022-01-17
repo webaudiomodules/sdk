@@ -1,5 +1,5 @@
 import { WamArrayRingBuffer } from './types';
 
-declare const executable: () => typeof WamArrayRingBuffer;
+declare const getWamArrayRingBuffer: (moduleId?: string) => typeof WamArrayRingBuffer;
 
-export default executable;
+export default getWamArrayRingBuffer;

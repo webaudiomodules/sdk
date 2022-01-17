@@ -1,13 +1,19 @@
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
 /** @typedef {import('./types').TypedArray} TypedArray */
 /** @typedef {import('./types').RingBuffer} IRingBuffer */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 
 /**
+ * @param {string} [moduleId]
  * @returns {RingBufferConstructor}
  */
-const executable = () => {
+const getRingBuffer = (moduleId) => {
+	/** @type {AudioWorkletGlobalScope} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+
 	/**
 	 * A Single Producer - Single Consumer thread-safe wait-free ring buffer.
 	 * The producer and the consumer can be on separate threads, but cannot change roles,
@@ -236,23 +242,18 @@ const executable = () => {
 			}
 		}
 	}
-	/** @type {AudioWorkletGlobalScope} */
-	// @ts-ignore
-	const audioWorkletGlobalScope = globalThis;
+
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!audioWorkletGlobalScope.RingBuffer) audioWorkletGlobalScope.RingBuffer = RingBuffer;
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
+		if (!ModuleScope.RingBuffer) ModuleScope.RingBuffer = RingBuffer;
 	}
 
 	return RingBuffer;
 };
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.RingBuffer) executable();
-}
 
-export default executable;
+export default getRingBuffer;
 
 /* Usage in main thread:
 import executable from 'RingBuffer.js';
@@ -268,10 +269,10 @@ const { RingBuffer } = globalThis;
 
 /* Usage in audio thread with a build system:
 // in main thread:
-import executable from 'RingBuffer.js';
-const blob = new Blob([`(${executable.toString()})();`], { type: 'text/javascript' })
+import getRingBuffer from 'RingBuffer.js';
+const blob = new Blob([`(${getRingBuffer.toString()})(JSON.stringify(moduleId));`], { type: 'text/javascript' });
 const url = window.URL.createObjectURL(blob);
 audioWorklet.addModule(url);
 // in audio thread
-const { RingBuffer } = globalThis;
+const { RingBuffer } = globalThis.webAudioModules.dependencies[moduleId];
 */

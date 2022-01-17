@@ -1,15 +1,21 @@
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('./types').RingBuffer} RingBuffer */
 /** @typedef {import('./types').TypedArray} TypedArray */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
 /** @typedef {import('./types').WamArrayRingBuffer} IWamArrayRingBuffer */
 /** @typedef {typeof import('./types').WamArrayRingBuffer} WamArrayRingBufferConstructor */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
+ * @param {string} [moduleId]
  * @returns {WamArrayRingBufferConstructor}
  */
-const executable = () => {
+const getWamArrayRingBuffer = (moduleId) => {
+	/** @type {AudioWorkletGlobalScope} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+
 	/**
 	 * @implements {IWamArrayRingBuffer}
 	 */
@@ -19,7 +25,7 @@ const executable = () => {
 		 *
 		 * @type {number}
 		 */
-		 static DefaultArrayCapacity = 2;
+		static DefaultArrayCapacity = 2;
 
 		/**
 		 * Returns a SharedArrayBuffer large enough to safely store the
@@ -126,22 +132,15 @@ const executable = () => {
 		}
 
 	}
-	/** @type {AudioWorkletGlobalScope} */
-	// @ts-ignore
-	const audioWorkletGlobalScope = globalThis;
+
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!audioWorkletGlobalScope.WamArrayRingBuffer) {
-			audioWorkletGlobalScope.WamArrayRingBuffer = WamArrayRingBuffer;
-		}
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
+		if (!ModuleScope.WamArrayRingBuffer) ModuleScope.WamArrayRingBuffer = WamArrayRingBuffer;
 	}
 
 	return WamArrayRingBuffer;
 };
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamArrayRingBuffer) executable();
-}
 
-export default executable;
+export default getWamArrayRingBuffer;

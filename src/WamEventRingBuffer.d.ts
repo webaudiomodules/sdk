@@ -1,5 +1,5 @@
 import { WamEventRingBuffer } from './types';
 
-declare const executable: () => typeof WamEventRingBuffer;
+declare const getWamEventRingBuffer: (moduleId?: string) => typeof WamEventRingBuffer;
 
-export default executable;
+export default getWamEventRingBuffer;

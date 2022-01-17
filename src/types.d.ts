@@ -1,5 +1,4 @@
-
-import { AudioWorkletGlobalScope as IAudioWorkletGlobalScope, WebAudioModule as IWebAudioModule, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
+import { WebAudioModule as IWebAudioModule, WamGroup as IWamGroup, WamEventType, WamBinaryData, WamEvent, WamMidiData, WamParameter, WamParameterMap, WamParameterData, WamParameterDataMap, WamParameterInfo, WamParameterInfoMap, WamProcessor as IWamProcessor, WamTransportData, WamNode as IWamNode, WamDescriptor } from '@webaudiomodules/api';
 
 export interface WamParameterInterpolator {
 	/** Info object for corresponding WamParameter. */
@@ -252,9 +251,9 @@ export const WamArrayRingBuffer: {
 };
 
 export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListener" | "removeEventListener"> {
+	readonly groupId: string;
 	readonly moduleId: string;
 	readonly instanceId: string;
-	readonly processorId: string;
 
 	/** Note: methods and members starting with underscore should not be accessed by host. */
 	_generateMessageId(): number;
@@ -276,7 +275,7 @@ export interface WamNode extends IWamNode, Omit<AudioWorkletNode, "addEventListe
 }
 export const WamNode: {
 	prototype: WamNode;
-	addModules(audioContext: BaseAudioContext, baseURL: string): Promise<void>;
+	addModules(audioContext: BaseAudioContext, moduleId: string): Promise<void>;
 	new (module: IWebAudioModule, options?: AudioWorkletNodeOptions): WamNode;
 };
 
@@ -284,27 +283,25 @@ export const WamNode: {
  * A WamEvent and corresponding message id used to trigger callbacks
  * on the main thread once the event has been processed.
  */
-export type PendingWamEvent = {
+export interface PendingWamEvent {
 	id: number;
 	event: WamEvent;
-};
+}
 
 /**
  * A range of sample indices and corresponding list of simultaneous
  * WamEvents to be processed at the beginning of the slice.
  */
-export type ProcessingSlice = {
+export interface ProcessingSlice {
 	range: [number, number];
 	events: WamEvent[];
-};
+}
 
-export type WamParameterInterpolatorMap = {
+export interface WamParameterInterpolatorMap {
 	[id: string]: WamParameterInterpolator;
-};
+}
 
 export interface WamProcessor extends IWamProcessor {
-	readonly downstream: Set<IWamProcessor>
-
 	/** Note: methods and members starting with underscore should not be accessed by host. */
 	_generateWamParameterInfo(): WamParameterInfoMap;
 	_initialize(): void;
@@ -368,16 +365,28 @@ export interface WebAudioModule<Node extends IWamNode = IWamNode> extends IWebAu
 
 export const WebAudioModule: {
 	prototype: WebAudioModule;
-	createInstance<Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
-	new <Node extends IWamNode = IWamNode>(audioContext: BaseAudioContext): WebAudioModule<Node>;
+	createInstance<Node extends IWamNode = IWamNode>(groupId: string, audioContext: BaseAudioContext, initialState?: any): Promise<WebAudioModule<Node>>;
+	new <Node extends IWamNode = IWamNode>(groupId: string, audioContext: BaseAudioContext): WebAudioModule<Node>;
 } & Pick<typeof IWebAudioModule, "isWebAudioModuleConstructor">;
 
-export interface AudioWorkletGlobalScope extends IAudioWorkletGlobalScope {
-	RingBuffer: typeof RingBuffer;
-	WamEventRingBuffer: typeof WamEventRingBuffer;
-	WamArrayRingBuffer: typeof WamArrayRingBuffer;
-	WamParameter: typeof WamParameter;
-	WamParameterInfo: typeof WamParameterInfo;
-	WamParameterInterpolator: typeof WamParameterInterpolator;
-	WamProcessor: typeof WamProcessor;
+export interface WamGroup extends IWamGroup {
+	_validate(key: string): boolean;
+	processors: Map<string, IWamProcessor>;
+	eventGraph: Map<IWamProcessor, Set<IWamProcessor>[]>;
+}
+
+export const WamGroup: {
+	prototype: WamGroup;
+	new (groupId: string, groupKey: string): WamGroup;
+}
+
+export interface WamSDKBaseModuleScope {
+	RingBuffer?: typeof RingBuffer;
+	WamEventRingBuffer?: typeof WamEventRingBuffer;
+	WamArrayRingBuffer?: typeof WamArrayRingBuffer;
+	WamParameter?: typeof WamParameter;
+	WamParameterInfo?: typeof WamParameterInfo;
+	WamParameterInterpolator?: typeof WamParameterInterpolator;
+	WamProcessor?: typeof WamProcessor;
+	WamGroup?: typeof WamGroup;
 }

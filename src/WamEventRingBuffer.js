@@ -12,17 +12,23 @@
 /** @typedef {import('@webaudiomodules/api').WamMidiData} WamMidiData */
 /** @typedef {import('@webaudiomodules/api').WamBinaryData} WamBinaryData */
 /** @typedef {import('@webaudiomodules/api').WamInfoData} WamInfoData */
+/** @typedef {import('@webaudiomodules/api').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
 /** @typedef {typeof import('./types').RingBuffer} RingBufferConstructor */
 /** @typedef {import('./types').RingBuffer} RingBuffer */
 /** @typedef {import('./types').TypedArrayConstructor} TypedArrayConstructor */
 /** @typedef {import('./types').WamEventRingBuffer} IWamEventRingBuffer */
 /** @typedef {typeof import('./types').WamEventRingBuffer} WamEventRingBufferConstructor */
-/** @typedef {import('./types').AudioWorkletGlobalScope} AudioWorkletGlobalScope */
+/** @typedef {import('./types').WamSDKBaseModuleScope} WamSDKBaseModuleScope */
 
 /**
+ * @param {string} [moduleId]
  * @returns {WamEventRingBufferConstructor}
  */
-const executable = () => {
+const getWamEventRingBuffer = (moduleId) => {
+	/** @type {AudioWorkletGlobalScope} */
+	// @ts-ignore
+	const audioWorkletGlobalScope = globalThis;
+
 	/**
 	 * @implements {IWamEventRingBuffer}
 	 */
@@ -515,22 +521,15 @@ const executable = () => {
 		}
 
 	}
-	/** @type {AudioWorkletGlobalScope} */
-	// @ts-ignore
-	const audioWorkletGlobalScope = globalThis;
+
 	if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-		if (!audioWorkletGlobalScope.WamEventRingBuffer) {
-			audioWorkletGlobalScope.WamEventRingBuffer = WamEventRingBuffer;
-		}
+		/** @type {WamSDKBaseModuleScope} */
+		const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
+
+		if (!ModuleScope.WamEventRingBuffer) ModuleScope.WamEventRingBuffer = WamEventRingBuffer;
 	}
 
 	return WamEventRingBuffer;
 };
-/** @type {AudioWorkletGlobalScope} */
-// @ts-ignore
-const audioWorkletGlobalScope = globalThis;
-if (audioWorkletGlobalScope.AudioWorkletProcessor) {
-	if (!audioWorkletGlobalScope.WamEventRingBuffer) executable();
-}
 
-export default executable;
+export default getWamEventRingBuffer;

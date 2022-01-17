@@ -6,8 +6,14 @@
 /** @typedef {import('@webaudiomodules/api').WamEventType} WamEventType */
 /** @typedef {import('./types').WamEventRingBuffer} WamEventRingBuffer */
 
+import addFunctionModule from './addFunctionModule.js';
 import getRingBuffer from './RingBuffer.js';
+import getWamArrayRingBuffer from './WamArrayRingBuffer.js';
 import getWamEventRingBuffer from './WamEventRingBuffer.js';
+import getWamParameter from './WamParameter.js';
+import getWamParameterInfo from './WamParameterInfo.js';
+import getWamParameterInterpolator from './WamParameterInterpolator.js';
+import getWamProcessor from './WamProcessor.js';
 
 const RingBuffer = getRingBuffer();
 const WamEventRingBuffer = getWamEventRingBuffer();
@@ -19,17 +25,17 @@ export default class WamNode extends AudioWorkletNode {
 	/**
 	 * Register scripts required for the processor. Must be called before constructor.
 	 * @param {BaseAudioContext} audioContext
-	 * @param {string} baseURL
+	 * @param {string} moduleId
 	 */
-	static async addModules(audioContext, baseURL) {
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/RingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEventRingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamArrayRingBuffer.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamEnv.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameter.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInfo.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamParameterInterpolator.js`);
-		await audioContext.audioWorklet.addModule(`${baseURL}/../../sdk/src/WamProcessor.js`);
+	static async addModules(audioContext, moduleId) {
+		const { audioWorklet } = audioContext;
+		await addFunctionModule(audioWorklet, getRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamEventRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamArrayRingBuffer, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameter, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInfo, moduleId);
+		await addFunctionModule(audioWorklet, getWamParameterInterpolator, moduleId);
+		await addFunctionModule(audioWorklet, getWamProcessor, moduleId);
 	}
 
 	/**
@@ -37,8 +43,9 @@ export default class WamNode extends AudioWorkletNode {
 	 * @param {AudioWorkletNodeOptions} options
 	 */
 	constructor(module, options) {
-		const { audioContext, moduleId, instanceId } = module;
+		const { audioContext, groupId, moduleId, instanceId } = module;
 		options.processorOptions = {
+			groupId,
 			moduleId,
 			instanceId,
 			...options.processorOptions,
@@ -66,11 +73,11 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/** @returns {string} */
+	get groupId() { return this.module.groupId; }
+	/** @returns {string} */
 	get moduleId() { return this.module.moduleId; }
 	/** @returns {string} */
 	get instanceId() { return this.module.instanceId; }
-	/** @returns {string} */
-	get processorId() { return this.moduleId; }
 
 	/**
 	 * Get parameter info for the specified parameter ids,
@@ -251,11 +258,10 @@ export default class WamNode extends AudioWorkletNode {
 	}
 
 	/**
-	 * @param {WamNode} to the destination WAM for the event stream
+	 * @param {string} toId the instanceId of the destination WAM for the event stream
 	 * @param {number} [output] the event output stream of the source WAM
 	 */
-	connectEvents(to, output) {
-		if (!to.module?.isWebAudioModule) return;
+	connectEvents(toId, output) {
 		const request = 'connect/events';
 		const id = this._generateMessageId();
 		new Promise((resolve, reject) => {
@@ -263,17 +269,16 @@ export default class WamNode extends AudioWorkletNode {
 			this.port.postMessage({
 				id,
 				request,
-				content: { wamInstanceId: to.instanceId, output },
+				content: { wamInstanceId: toId, output },
 			});
 		});
 	}
 
 	/**
-	 * @param {WamNode} [to] the destination WAM for the event stream
+	 * @param {string} [toId] the instanceId of the destination WAM for the event stream
 	 * @param {number} [output]
 	 */
-	disconnectEvents(to, output) {
-		if (to && !to.module?.isWebAudioModule) return;
+	disconnectEvents(toId, output) {
 		const request = 'disconnect/events';
 		const id = this._generateMessageId();
 		new Promise((resolve, reject) => {
@@ -281,7 +286,7 @@ export default class WamNode extends AudioWorkletNode {
 			this.port.postMessage({
 				id,
 				request,
-				content: { wamInstanceId: to?.instanceId, output },
+				content: { wamInstanceId: toId, output },
 			});
 		});
 	}

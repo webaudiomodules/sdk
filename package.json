@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "node src/prebuild.js",
     "build": "esbuild src/index.js --target=esnext --bundle --sourcemap --outdir=dist --format=esm",
+    "postbuild": "dts-bundle-generator -o dist/index.d.ts src/index.ts",
     "test": "jest"
   },
   "keywords": [

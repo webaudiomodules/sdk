@@ -28,7 +28,7 @@ const getWamProcessor = (moduleId) => {
 		AudioWorkletProcessor,
 		webAudioModules,
 	} = audioWorkletGlobalScope;
-	
+
 	/** @type {WamSDKBaseModuleScope} */
 	const ModuleScope = audioWorkletGlobalScope.webAudioModules.getModuleScope(moduleId);
 	const {
@@ -37,7 +37,7 @@ const getWamProcessor = (moduleId) => {
 		WamParameter,
 		WamParameterInterpolator
 	} = ModuleScope;
-		
+
 	/**
 	 * @implements {IWamProcessor}
 	 */
@@ -46,7 +46,7 @@ const getWamProcessor = (moduleId) => {
 		 * @param {AudioWorkletNodeOptions} options
 		 */
 		constructor(options) {
-			super(options);
+			super();
 			const {
 				groupId,
 				moduleId,

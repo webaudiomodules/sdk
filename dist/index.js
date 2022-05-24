@@ -1111,7 +1111,7 @@ var getWamProcessor = (moduleId) => {
   } = ModuleScope;
   class WamProcessor extends AudioWorkletProcessor {
     constructor(options) {
-      super(options);
+      super();
       const {
         groupId,
         moduleId: moduleId2,
@@ -1719,7 +1719,7 @@ var WamNode = class extends AudioWorkletNode {
 };
 
 // src/apiVersion.js
-var apiVersion_default = "2.0.0-alpha.3";
+var apiVersion_default = "2.0.0-alpha.4";
 
 // src/initializeWamHost.js
 var initializeWamHost = async (audioContext, hostGroupId = `wam-host-${performance.now().toString()}`, hostGroupKey = performance.now().toString()) => {

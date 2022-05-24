@@ -1,6 +1,6 @@
 {
   "name": "@webaudiomodules/sdk",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "WebAudioModules Plugin SDK",
   "type": "module",
   "main": "dist/index.js",

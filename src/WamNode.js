@@ -243,18 +243,18 @@ export default class WamNode extends AudioWorkletNode {
 	async clearEvents() {
 		const request = 'remove/events';
 		const id = this._generateMessageId();
-		return new Promise((resolve) => {
-			const ids = Object.keys(this._pendingEvents);
-			if (ids.length) {
+		const ids = Object.keys(this._pendingEvents);
+		if (ids.length) {
+			return new Promise((/** @type {(ids: string[]) => any} */resolve) => {
 				this._pendingResponses[id] = resolve;
 				this.port.postMessage({ id, request });
-			}
-		}).then((clearedIds) => {
-			clearedIds.forEach((clearedId) => {
-				this._pendingEvents[clearedId]();
-				delete this._pendingEvents[clearedId];
+			}).then((clearedIds) => {
+				clearedIds.forEach((clearedId) => {
+					this._pendingEvents[clearedId]();
+					delete this._pendingEvents[clearedId];
+				});
 			});
-		});
+		}
 	}
 
 	/**

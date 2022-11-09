@@ -15,6 +15,7 @@ var WebAudioModule = class {
     this._guiModuleUrl = void 0;
     this._descriptorUrl = "./descriptor.json";
     this._descriptor = {
+      identifier: `com.webaudiomodule.default`,
       name: `WebAudioModule_${this.constructor.name}`,
       vendor: "WebAudioModuleVendor",
       description: "",
@@ -45,13 +46,16 @@ var WebAudioModule = class {
     return this._groupId;
   }
   get moduleId() {
-    return this.vendor + this.name;
+    return this.descriptor.identifier;
   }
   get instanceId() {
     return this.moduleId + this._timestamp;
   }
   get descriptor() {
     return this._descriptor;
+  }
+  get identifier() {
+    return this.descriptor.identifier;
   }
   get name() {
     return this.descriptor.name;

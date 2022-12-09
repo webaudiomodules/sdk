@@ -1158,6 +1158,7 @@ var getWamProcessor = (moduleId) => {
         this._eventQueue.push({ id: 0, event: events[i] });
         i++;
       }
+      this._eventQueue.sort((a, b) => a.event.time - b.event.time);
     }
     emitEvents(...events) {
       webAudioModules.emitEvents(this, ...events);

@@ -15,6 +15,7 @@ var WebAudioModule = class {
     this._guiModuleUrl = void 0;
     this._descriptorUrl = "./descriptor.json";
     this._descriptor = {
+      identifier: `com.webaudiomodule.default`,
       name: `WebAudioModule_${this.constructor.name}`,
       vendor: "WebAudioModuleVendor",
       description: "",
@@ -45,13 +46,16 @@ var WebAudioModule = class {
     return this._groupId;
   }
   get moduleId() {
-    return this.vendor + this.name;
+    return this.descriptor.identifier;
   }
   get instanceId() {
     return this.moduleId + this._timestamp;
   }
   get descriptor() {
     return this._descriptor;
+  }
+  get identifier() {
+    return this.descriptor.identifier;
   }
   get name() {
     return this.descriptor.name;
@@ -1719,7 +1723,7 @@ var WamNode = class extends AudioWorkletNode {
 };
 
 // src/apiVersion.js
-var apiVersion_default = "2.0.0-alpha.4";
+var apiVersion_default = "2.0.0-alpha.6";
 
 // src/initializeWamHost.js
 var initializeWamHost = async (audioContext, hostGroupId = `wam-host-${performance.now().toString()}`, hostGroupKey = performance.now().toString()) => {

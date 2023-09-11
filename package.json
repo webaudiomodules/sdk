@@ -34,7 +34,7 @@
   },
   "module": "dist",
   "bugs": {
-    "url": "https://github.com/%40webaudiomodules/sdk/issues"
+    "url": "https://github.com/webaudiomodules/sdk/issues"
   },
-  "homepage": "https://github.com/%40webaudiomodules/sdk#readme"
+  "homepage": "https://github.com/webaudiomodules/sdk#readme"
 }

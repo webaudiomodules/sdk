@@ -1144,6 +1144,7 @@ var getWamProcessor = (moduleId) => {
       this._eventReader = null;
       this._initialized = false;
       this._destroyed = false;
+      this._eventQueueRequiresSort = false;
       webAudioModules.addWam(this);
       this.port.onmessage = this._onMessage.bind(this);
       if (this._useSab)
@@ -1158,7 +1159,7 @@ var getWamProcessor = (moduleId) => {
         this._eventQueue.push({ id: 0, event: events[i] });
         i++;
       }
-      this._eventQueue.sort((a, b) => a.event.time - b.event.time);
+      this._eventQueueRequiresSort = this._eventQueue.length > 1;
     }
     emitEvents(...events) {
       webAudioModules.emitEvents(this, ...events);
@@ -1263,6 +1264,7 @@ var getWamProcessor = (moduleId) => {
           if (noun === "event") {
             const { event } = content;
             this._eventQueue.push({ id, event });
+            this._eventQueueRequiresSort = this._eventQueue.length > 1;
             return;
           }
         } else if (verb === "remove") {
@@ -1388,6 +1390,10 @@ var getWamProcessor = (moduleId) => {
       const response = "add/event";
       const { currentTime, sampleRate } = audioWorkletGlobalScope;
       const eventsBySampleIndex = {};
+      if (this._eventQueueRequiresSort) {
+        this._eventQueue.sort((a, b) => a.event.time - b.event.time);
+        this._eventQueueRequiresSort = false;
+      }
       let i = 0;
       while (i < this._eventQueue.length) {
         const { id, event } = this._eventQueue[i];

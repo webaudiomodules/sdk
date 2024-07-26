@@ -1724,7 +1724,7 @@ var WamNode = class extends AudioWorkletNode {
 };
 
 // src/apiVersion.js
-var apiVersion_default = "2.0.0-alpha.4";
+var apiVersion_default = "2.0.0-alpha.6";
 
 // src/initializeWamHost.js
 var initializeWamHost = async (audioContext, hostGroupId = `wam-host-${performance.now().toString()}`, hostGroupKey = performance.now().toString()) => {
